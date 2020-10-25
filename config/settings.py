@@ -2,11 +2,17 @@
 henTaiFast 配置文件
 """
 import os
-
+"""
+版本号
+"""
+# 此项别动
+VERSION = 1.0
 """
 全局设置
 """
 DEBUG = True
+HOST = "127.0.0.1"
+PORT = 1021
 
 """
 请求设置
@@ -32,13 +38,16 @@ PROXY_SETTING = {
 
 即请求接口时，返回的json数据结构
 """
-# 默认回调数据结构模板，BASE_CALLBACK_DATA不可更改。
+# 默认回调数据结构模板，BASE_CALLBACK_DATA不建议更改，也不建议覆盖。
 BASE_CALLBACK_DATA = {
     "status_code": 404,
     "status_bool": False,
+    "version": VERSION,
+    "cost_time": None,
+    "date": None,
+    "ts": None,
+    "message": "未知回调错误！",
     "data": {},
-    "version": 1.0,
-    "message": "未知回调错误！"
 }
 
 # 自定义回调数据，可添加任意自己需要的键值对，来扩充BASE_CALLBACK_DATA当中

@@ -21,6 +21,5 @@ api_router = APIRouter()
 for u, r in eros.items():
     api_router.include_router(r, prefix=u)
 
-# api_router.include_router(eros["/nh"], prefix="/nh")
 
 

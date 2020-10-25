@@ -8,3 +8,4 @@
 
 __author__ = 'RaXianch'
 from . import views
+from server import RES_CALLBACK

@@ -7,7 +7,8 @@
 # Github    : https://github.com/DeSireFire
 
 __author__ = 'RaXianch'
-
+# todo 运行文件封装，开发启动菜单
 import uvicorn
+from config.settings import HOST, PORT
 if __name__ == '__main__':
-    uvicorn.run(app="server.main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(app="server.main:app", host=HOST, port=int(PORT), reload=True)

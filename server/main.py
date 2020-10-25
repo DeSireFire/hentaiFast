@@ -12,7 +12,6 @@ from typing import Optional
 
 from fastapi import FastAPI
 from apps.routers import api_router
-from fastapi import APIRouter
 import time
 
 
