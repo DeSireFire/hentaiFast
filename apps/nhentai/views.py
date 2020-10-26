@@ -9,20 +9,71 @@
 __author__ = 'RaXianch'
 
 import json
+from typing import Optional
+
 # 响应数据构建器
 from apps import constructResponse
 
 from fastapi import APIRouter
+
+
 # 声明视图子路由
 router = APIRouter()
 
+
 # 视图函数
+@router.get("/")
+async def nh_random():
+    return {}
+
+
+@router.get("/random")
+async def nh_random():
+    from handlers.getWeb import base_load_web
+    return {}
+
+
+@router.get("/search")
+async def nh_search(q: Optional[str] = None, page: Optional[int] = 1):
+    from handlers.getWeb import base_load_web
+    # 关键词切割，空格和空格的url转义字符都替换成+
+    keyword = q.replace(" ", "+").replace("%20", "+")
+    tempDict = {
+        "kw": q,
+        "page": page,
+        "pages": None,
+        "bookList": [],
+    }
+    callbackJson = constructResponse()
+    req = base_load_web("https://nhentai.net/search/?q=%s" % keyword)
+    if req != None:
+        from handlers.dbFormat import reglux
+        callbackJson.statusCode = req.status_code
+        tempDict["pages"] = "".join(reglux(req.text, r'<a href="/search/\?q=.*?\&amp\;page=(\d*?)" class="last">', False))
+        bids = reglux(req.text, r'<ahref="/g/(\d*?)/"class="cover"style="padding', True)
+        names = reglux(req.text, r'<div class="caption">(.*?)</div>', False)
+        thumbs = reglux(req.text, r'<noscript><img src="([\s\S]*?)"', False)
+        for b, n, t in zip(bids, names, thumbs):
+            tempItem = {
+                "id": b,
+                "bname": n,
+                "cover": t,
+                "url": "https://nhentai.net/g/%s/" % b,
+            }
+            tempDict["bookList"].append(tempItem)
+    return callbackJson.callBacker(tempDict)
+
+
 @router.get("/id/{item_id}")
 async def nh_item(item_id: int):
     """
-    依据本子id响应本子信息
-    :param item_id: int,本子的唯一id
-    :return: json,响应的数据咯~
+    **nh_item** :
+
+    - **name**: 漫画信息接口
+    - **description**: 用对应id获取对应的本子漫画信息的接口,使用get方式请求
+    - **rely**: 依赖handlers.dbFormat.reglux,handlers.getWeb.base_load_web等方法
+    - **param**[item_id]:  int，漫画的id
+    - **return**: json,响应的数据咯~
     """
     from handlers.getWeb import base_load_web
     tempStr = "{}"
@@ -33,4 +84,5 @@ async def nh_item(item_id: int):
         callbackJson.statusCode = req.status_code
         tempStr = "".join(reglux(req.text, r'window._gallery = JSON.parse\("([\s\S]*?)"\);', False)).encode(
             "utf-8").decode('unicode-escape')
+
     return callbackJson.callBacker(json.loads(tempStr))

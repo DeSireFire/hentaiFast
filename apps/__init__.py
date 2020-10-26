@@ -45,3 +45,5 @@ class constructResponse(object):
         self.resData["ts"] = self.endTime
         self.resData["date"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         return self.resData
+
+# todo 自定义错误响应

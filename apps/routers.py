@@ -9,16 +9,16 @@
 __author__ = 'RaXianch'
 
 from fastapi import APIRouter
+from apps import index
 from apps import nhentai
 from apps import exhentai
-
-eros = {
-    "/nh": nhentai.views.router,
-    "/exh": exhentai.views.router,
+routesPath = {
+    "": index.views.router,
+    "/ero/nh": nhentai.views.router,
+    "/ero/exh": exhentai.views.router,
 }
-
 api_router = APIRouter()
-for u, r in eros.items():
+for u, r in routesPath.items():
     api_router.include_router(r, prefix=u)
 
 

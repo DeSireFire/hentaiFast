@@ -5,12 +5,18 @@ import os
 """
 版本号
 """
-# 此项别动
+# 程序版本号，此项别动
 VERSION = 1.0
 """
 全局设置
 """
+# debug模式
 DEBUG = True
+
+# 项目根目录
+BASE_PATH = BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# 部署服务器的地址和端口
 HOST = "127.0.0.1"
 PORT = 1021
 

@@ -1,43 +1,33 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Author    : RaXianch
-# CreatDATE : 2020/10/23 
-# CreatTIME : 12:56 
+# CreatDATE : 2020/10/26 
+# CreatTIME : 14:47 
 # Blog      : https://blog.raxianch.moe/
 # Github    : https://github.com/DeSireFire
 
 __author__ = 'RaXianch'
 
-from typing import Optional
+import uvicorn
+import os
+import sys
 
-from fastapi import FastAPI
-from apps.routers import api_router
-import time
+try:
+    from config.settings import HOST, PORT
+    from server import app
+
+except ModuleNotFoundError as e:
+    # 解决终端直接运行main.py找不到项目自建模块的问题
+    sys.path.append(os.path.dirname(sys.path[0]))
+
+    from config.settings import HOST, PORT
+    from server import app
 
 
-app = FastAPI()
-app.include_router(api_router, prefix="/ero")
+def run_uvicorn(host=HOST, port=int(PORT)):
+    uvicorn.run(app="server.main:app", host=host, port=port, reload=True)
 
 
-@app.get("/")
-async def index():
-    context = {
-        "TIME": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-        "/nh": "nh来源，试做",
-        "/eh": "eh来源，还未完成",
-        "/exh": "exh来源，还未完成",
-        "todo": "各种处理器（上传、各类检查和验证器、数据清洗格式化、异步数据库操作、爬虫）、应用分级路由及其视图开发和设计、docs验证、设置文件的完善、docker封装"
-    }
-    return context
-
-@app.get("/ero")
-async def index():
-    context = {
-        "TIME": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-    }
-    print(context)
-    return context
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+if __name__ == '__main__':
+    run_uvicorn()
+# todo 启动前的自检

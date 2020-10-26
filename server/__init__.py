@@ -8,8 +8,17 @@
 
 __author__ = 'RaXianch'
 
-# 从设置文件中导入有关字典，来更新回调时，响应给客户端的json数据结构
 import collections
 from config.settings import BASE_CALLBACK_DATA, CUSTO_CALLBACK_DATA
 
+# 从设置文件中导入有关字典，来更新回调时，响应给客户端的json数据结构
 RES_CALLBACK = collections.OrderedDict(BASE_CALLBACK_DATA, **CUSTO_CALLBACK_DATA)
+
+from fastapi import FastAPI
+from apps.routers import api_router
+
+# 实例化FastAPI对象
+app = FastAPI()
+
+# 载入路由器
+app.include_router(api_router)
