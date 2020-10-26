@@ -21,3 +21,12 @@ async def index():
         "todo": "各种处理器（上传、各类检查和验证器、数据清洗格式化、异步数据库操作、爬虫）、应用分级路由及其视图开发和设计、docs验证、设置文件的完善、docker封装"
     }
     return context
+
+
+@router.get("/reload")
+async def index():
+    from config.settings import BASE_DIR
+    import os
+    with open(os.path.join(BASE_DIR, "runServer.py"), 'a+') as f:
+        f.write("\n    print(%s)" % time.time())
+    return {}

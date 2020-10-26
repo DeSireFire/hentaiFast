@@ -28,11 +28,10 @@ def run_uvicorn(host=HOST, port=int(PORT)):
     uvicorn.run(
         app="server.main:app",
         host=host, port=port,
-        docs_url=DOCS_URL,
-        redoc_url=REDOC_URL,
         reload=True)
 
 
 if __name__ == '__main__':
     run_uvicorn()
 # todo 启动前的自检
+# todo 为docs为none时设置响应数据

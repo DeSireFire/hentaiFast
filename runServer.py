@@ -9,6 +9,7 @@
 __author__ = 'RaXianch'
 # todo 运行文件封装，开发启动菜单
 from server.main import run_uvicorn
-
 if __name__ == '__main__':
     run_uvicorn()
+    print(1603728431.491153)
+    print(1603728440.4382517)
