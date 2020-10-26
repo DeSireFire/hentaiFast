@@ -13,7 +13,7 @@ import os
 import sys
 
 try:
-    from config.settings import HOST, PORT
+    from config.settings import HOST, PORT, DOCS_URL, REDOC_URL
     from server import app
 
 except ModuleNotFoundError as e:
@@ -25,7 +25,12 @@ except ModuleNotFoundError as e:
 
 
 def run_uvicorn(host=HOST, port=int(PORT)):
-    uvicorn.run(app="server.main:app", host=host, port=port, reload=True)
+    uvicorn.run(
+        app="server.main:app",
+        host=host, port=port,
+        docs_url=DOCS_URL,
+        redoc_url=REDOC_URL,
+        reload=True)
 
 
 if __name__ == '__main__':

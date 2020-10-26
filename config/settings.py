@@ -20,6 +20,10 @@ BASE_PATH = BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 HOST = "127.0.0.1"
 PORT = 1021
 
+# 文档开关
+DOCS_URL = None
+REDOC_URL = None
+
 """
 请求设置
 """
@@ -58,8 +62,9 @@ BASE_CALLBACK_DATA = {
 
 # 自定义回调数据，可添加任意自己需要的键值对，来扩充BASE_CALLBACK_DATA当中
 CUSTO_CALLBACK_DATA = {
+    # 举例：
     "token": "RaXianch666",
-    "扯淡": "今天的天气真好啊~",
+    "example": "假如前端需要从响应的json数据中，接收某个自定义参数，就写这里",
 }
 
 
