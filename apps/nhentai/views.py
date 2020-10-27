@@ -15,7 +15,8 @@ from typing import Optional
 from apps import constructResponse
 
 from fastapi import APIRouter
-
+from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse
 
 # 声明视图子路由
 router = APIRouter()
@@ -49,7 +50,8 @@ async def nh_search(q: Optional[str] = None, page: Optional[int] = 1):
     if req != None:
         from handlers.dbFormat import reglux
         callbackJson.statusCode = req.status_code
-        tempDict["pages"] = "".join(reglux(req.text, r'<a href="/search/\?q=.*?\&amp\;page=(\d*?)" class="last">', False))
+        tempDict["pages"] = "".join(
+            reglux(req.text, r'<a href="/search/\?q=.*?\&amp\;page=(\d*?)" class="last">', False))
         bids = reglux(req.text, r'<ahref="/g/(\d*?)/"class="cover"style="padding', True)
         names = reglux(req.text, r'<div class="caption">(.*?)</div>', False)
         thumbs = reglux(req.text, r'<noscript><img src="([\s\S]*?)"', False)
@@ -58,7 +60,8 @@ async def nh_search(q: Optional[str] = None, page: Optional[int] = 1):
                 "id": b,
                 "bname": n,
                 "cover": t,
-                "url": "https://nhentai.net/g/%s/" % b,
+                # "url": "https://nhentai.net/g/%s/" % b,
+                "url": "/ero/nh/id/%s/" % b,
             }
             tempDict["bookList"].append(tempItem)
     return callbackJson.callBacker(tempDict)
@@ -77,6 +80,9 @@ async def nh_item(item_id: int):
     """
     from handlers.getWeb import base_load_web
     tempStr = "{}"
+    tempDict = {
+        "raw": None,
+    }
     callbackJson = constructResponse()
     req = base_load_web("https://nhentai.net/g/%s/" % item_id)
     if req != None:
@@ -85,4 +91,7 @@ async def nh_item(item_id: int):
         tempStr = "".join(reglux(req.text, r'window._gallery = JSON.parse\("([\s\S]*?)"\);', False)).encode(
             "utf-8").decode('unicode-escape')
 
+
     return callbackJson.callBacker(json.loads(tempStr))
+
+

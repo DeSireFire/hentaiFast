@@ -61,10 +61,18 @@ BASE_CALLBACK_DATA = {
 }
 
 # 自定义回调数据，可添加任意自己需要的键值对，来扩充BASE_CALLBACK_DATA当中
+# 举例：
+# CUSTO_CALLBACK_DATA = {
+#     "token": "RaXianch666",
+#     "example": "假如前端需要从响应的json数据中，接收某个自定义参数，就写这里",
+# }
 CUSTO_CALLBACK_DATA = {
-    # 举例：
-    "token": "RaXianch666",
-    "example": "假如前端需要从响应的json数据中，接收某个自定义参数，就写这里",
+
 }
+"""
+其他设置
+"""
+# exhentai的登陆cookie
+SELF_EXH_COOKIE = [
 
-
+]

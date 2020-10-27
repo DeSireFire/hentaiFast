@@ -35,3 +35,7 @@ def reglux(rawText, re_pattern, nbsp_del=True):
 
 def str_to_unicode(tempStr, enc="utf-8"):
     return tempStr.encode(enc).decode('unicode-escape')
+
+def str_extract_num(tempStr):
+    import re
+    return re.sub(r"\D", "", tempStr)
