@@ -11,6 +11,7 @@ __author__ = 'RaXianch'
 import collections
 from config.settings import BASE_CALLBACK_DATA, CUSTO_CALLBACK_DATA
 from config.settings import DOCS_URL, REDOC_URL
+from config.settings import *
 # 从设置文件中导入有关字典，来更新回调时，响应给客户端的json数据结构
 RES_CALLBACK = collections.OrderedDict(BASE_CALLBACK_DATA, **CUSTO_CALLBACK_DATA)
 

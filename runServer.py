@@ -11,5 +11,3 @@ __author__ = 'RaXianch'
 from server.main import run_uvicorn
 if __name__ == '__main__':
     run_uvicorn()
-    print(1603728431.491153)
-    print(1603728440.4382517)

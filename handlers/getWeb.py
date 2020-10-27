@@ -11,13 +11,23 @@ __author__ = 'RaXianch'
 """
 网络请求器
 """
-from config.settings import RETRY_MAX, TIMEOUT, VERIFY, ONPROXY, PROXY_SETTING
 from requests.adapters import HTTPAdapter
 import requests
+import sys
+import os
 import asyncio
 import nest_asyncio
-
 nest_asyncio.apply()
+
+try:
+    from server import *
+
+except ModuleNotFoundError as e:
+    # 解决终端直接运行main.py找不到项目自建模块的问题
+    sys.path.append(os.path.dirname(sys.path[0]))
+
+    from server import *
+
 
 
 def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY):
@@ -28,6 +38,7 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
     # 减去首次重试次数
     reTry -= 1
     # 返回值
+    # callBack = {"status": False, "response": None, "Exception": ""}
     callBack = None
     # 检查使用请求头
     if headers:
@@ -56,6 +67,8 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         s.proxies = proxiesList[0]
         r = s.get(url, timeout=timeout, verify=verify)
         callBack = r
+        # callBack["status"] = True
+        # callBack["response"] = r
     except requests.exceptions.RequestException as e:
         print("触发超时重试 %s" % e)
         # 超时重试
@@ -63,6 +76,8 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         s.mount('https://', HTTPAdapter(max_retries=reTry))
         s.proxies = proxiesList[1]
         r = s.get(url, timeout=timeout, verify=verify)
+        # callBack["status"] = True
+        # callBack["response"] = r
         callBack = r
 
     # 全局抓取错误

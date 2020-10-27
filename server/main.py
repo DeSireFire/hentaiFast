@@ -13,15 +13,13 @@ import os
 import sys
 
 try:
-    from config.settings import HOST, PORT, DOCS_URL, REDOC_URL
-    from server import app
+    from server import *
 
 except ModuleNotFoundError as e:
     # 解决终端直接运行main.py找不到项目自建模块的问题
     sys.path.append(os.path.dirname(sys.path[0]))
 
-    from config.settings import HOST, PORT
-    from server import app
+    from server import *
 
 
 def run_uvicorn(host=HOST, port=int(PORT)):

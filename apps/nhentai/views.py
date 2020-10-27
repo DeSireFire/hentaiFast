@@ -23,7 +23,7 @@ router = APIRouter()
 
 # 视图函数
 @router.get("/")
-async def nh_random():
+async def nh():
     return {}
 
 
