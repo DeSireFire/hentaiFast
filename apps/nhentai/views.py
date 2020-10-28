@@ -13,7 +13,7 @@ from typing import Optional
 
 # 响应数据构建器
 from apps import constructResponse
-
+from apps.nhentai import app_name
 from fastapi import APIRouter
 from fastapi.responses import RedirectResponse
 from fastapi.responses import FileResponse
@@ -81,17 +81,24 @@ async def nh_item(item_id: int):
     from handlers.getWeb import base_load_web
     tempStr = "{}"
     tempDict = {
-        "raw": None,
+        "origin": app_name,
+        "id": None,
+        "title": None,
+        "pages": None,
+        "favorites": None,
+        "upload_date": None,
+        "images": [],
+        "tags": [],
+        "raw": None,    # 原始数据
     }
     callbackJson = constructResponse()
     req = base_load_web("https://nhentai.net/g/%s/" % item_id)
-    if req != None:
+    if req is not None:
+        # todo 数据结构统一
         from handlers.dbFormat import reglux
         callbackJson.statusCode = req.status_code
         tempStr = "".join(reglux(req.text, r'window._gallery = JSON.parse\("([\s\S]*?)"\);', False)).encode(
             "utf-8").decode('unicode-escape')
-
-
     return callbackJson.callBacker(json.loads(tempStr))
 
 

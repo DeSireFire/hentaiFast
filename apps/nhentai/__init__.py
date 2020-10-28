@@ -7,4 +7,5 @@
 # Github    : https://github.com/DeSireFire
 
 __author__ = 'RaXianch'
+app_name = 'nhentai'
 from . import views

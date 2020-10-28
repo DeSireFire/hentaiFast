@@ -7,5 +7,6 @@
 # Github    : https://github.com/DeSireFire
 
 __author__ = 'RaXianch'
+app_name = 'index'
 from . import views
 from server import RES_CALLBACK

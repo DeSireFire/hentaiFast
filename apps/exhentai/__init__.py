@@ -7,6 +7,7 @@
 # Github    : https://github.com/DeSireFire
 
 __author__ = 'RaXianch'
+app_name = 'exhentai'
 from . import views
 from server import RES_CALLBACK
 EXH_COOKIE = [

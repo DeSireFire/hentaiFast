@@ -60,3 +60,25 @@ def global_IP(value):
         if IP(value).iptype() is 'PUBLIC':
             return True
     return False
+
+
+def proxy_check(ip, port, url="http://www.baidu.com/"):
+    """
+    代理有效性检测
+    :param url:
+    :param ip: str,代理ip
+    :param port: str,接口
+    :param url: str,需要测试的目标网址
+    :return:bool,根据状态码判断是否可用
+    """
+    import requests
+    proxies = {"http": f"http://{ip}:{port}"}
+    # 空白位置为测试代理ip和代理ip使用端口
+
+    headers = {"User-Agent": "Mozilla/5.0"}
+    # 响应头
+    res = requests.get(url, proxies=proxies, headers=headers)
+
+    if 200 <= res.status_code < 300:
+        return True
+    return False
