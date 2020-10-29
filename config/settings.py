@@ -34,11 +34,11 @@ TIMEOUT = 6
 # 重试次数
 RETRY_MAX = 3
 # 是否开启代理（代理总开关）
-ONPROXY = True
+ONPROXY = False
 # 代理设置
 PROXY_SETTING = {
     # True全局使用代理,False则重试时才使用代理
-    "reTryProxy": True,
+    "reTryProxy": False,
     # 代理接口设置
     "http": "http://127.0.0.1:1080",
     "https": "http://127.0.0.1:1080",
