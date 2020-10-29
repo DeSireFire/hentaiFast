@@ -36,6 +36,12 @@ def reglux(rawText, re_pattern, nbsp_del=True):
 def str_to_unicode(tempStr, enc="utf-8"):
     return tempStr.encode(enc).decode('unicode-escape')
 
+
 def str_extract_num(tempStr):
+    """
+    字符串数字提取函数
+    :param tempStr: str,被提取的字符串
+    :return: str,从字符串中筛出来的来数字
+    """
     import re
     return re.sub(r"\D", "", tempStr)

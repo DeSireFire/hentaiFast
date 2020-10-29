@@ -9,6 +9,7 @@
 __author__ = 'RaXianch'
 
 import json
+import random
 from typing import Optional
 
 # 响应数据构建器
@@ -17,6 +18,7 @@ from apps.nhentai import app_name
 from fastapi import APIRouter
 from fastapi.responses import RedirectResponse
 from fastapi.responses import FileResponse
+from fastapi.responses import Response
 
 # 声明视图子路由
 router = APIRouter()
@@ -30,12 +32,30 @@ async def nh():
 
 @router.get("/random")
 async def nh_random():
-    from handlers.getWeb import base_load_web
-    return {}
+    """
+    **nh_random** :
+
+    - **name**: 随机漫画接口
+    - **description**: 使用get方式请求,跳转到随机idd的本子数据
+    - **return**: json,响应的数据咯~
+    """
+    bid = random.randint(1, 300000)
+    return RedirectResponse("/ero/nh/id/%s" % bid)
 
 
 @router.get("/search")
-async def nh_search(q: Optional[str] = None, page: Optional[int] = 1):
+async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
+    """
+    **nh_search** :
+
+    - **name**: 漫画信息关键词搜索
+    - **description**: url传参数,关键词搜索,使用get方式请求
+    - **rely**: 依赖handlers.dbFormat.reglux,handlers.getWeb.base_load_web等方法
+    - **param**[q]:  str，搜索关键词,多个词使用+号分隔，组合词使用_代替空格。默认值为a
+    - **param**[page]:  int,页数。默认值为1
+    - **return**: json,响应的数据咯~
+    """
+    #todo 无关搜索词时返回的数据处理
     from handlers.getWeb import base_load_web
     # 关键词切割，空格和空格的url转义字符都替换成+
     keyword = q.replace(" ", "+").replace("%20", "+")
@@ -49,6 +69,7 @@ async def nh_search(q: Optional[str] = None, page: Optional[int] = 1):
     req = base_load_web("https://nhentai.net/search/?q=%s" % keyword)
     if req != None:
         from handlers.dbFormat import reglux
+        from handlers.dbFormat import str_extract_num
         callbackJson.statusCode = req.status_code
         tempDict["pages"] = "".join(
             reglux(req.text, r'<a href="/search/\?q=.*?\&amp\;page=(\d*?)" class="last">', False))
@@ -59,7 +80,7 @@ async def nh_search(q: Optional[str] = None, page: Optional[int] = 1):
             tempItem = {
                 "id": b,
                 "bname": n,
-                "cover": t,
+                "cover": "/ero/nh/thumb/%s/" % str_extract_num(t),
                 "url": "/ero/nh/id/%s/" % b,
             }
             tempDict["bookList"].append(tempItem)
@@ -112,4 +133,10 @@ async def nh_item(item_id: int):
 
     return callbackJson.callBacker(tempDict)
 
+@router.get("/thumb/{tid}")
+async def nh_thumb(tid: int):
+    from handlers.getWeb import base_load_web
+    url = 'https://t.nhentai.net/galleries/%s/thumb.jpg' % tid
+    r = base_load_web(url)
+    return Response(content=r.content)
 
