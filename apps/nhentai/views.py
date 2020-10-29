@@ -60,7 +60,6 @@ async def nh_search(q: Optional[str] = None, page: Optional[int] = 1):
                 "id": b,
                 "bname": n,
                 "cover": t,
-                # "url": "https://nhentai.net/g/%s/" % b,
                 "url": "/ero/nh/id/%s/" % b,
             }
             tempDict["bookList"].append(tempItem)
@@ -81,8 +80,8 @@ async def nh_item(item_id: int):
     from handlers.getWeb import base_load_web
     tempStr = "{}"
     tempDict = {
-        "origin": app_name,
         "id": None,
+        "origin": app_name,
         "title": None,
         "pages": None,
         "favorites": None,
@@ -94,11 +93,23 @@ async def nh_item(item_id: int):
     callbackJson = constructResponse()
     req = base_load_web("https://nhentai.net/g/%s/" % item_id)
     if req is not None:
-        # todo 数据结构统一
         from handlers.dbFormat import reglux
         callbackJson.statusCode = req.status_code
         tempStr = "".join(reglux(req.text, r'window._gallery = JSON.parse\("([\s\S]*?)"\);', False)).encode(
             "utf-8").decode('unicode-escape')
-    return callbackJson.callBacker(json.loads(tempStr))
+        rawData = json.loads(tempStr)
+        tempDict["raw"] = rawData
+        tempDict["id"] = rawData["id"]
+        tempDict["title"] = {
+            "full_name": rawData["title"]["english"],
+            "translated": rawData["title"]["japanese"],
+            "abbre": rawData["title"]["pretty"],
+        }
+        tempDict["favorites"] = rawData["num_favorites"]
+        tempDict["pages"] = rawData["num_pages"]
+        tempDict["tags"] = rawData["tags"]
+        tempDict["upload_date"] = rawData["upload_date"]
+
+    return callbackJson.callBacker(tempDict)
 
 
