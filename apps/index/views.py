@@ -8,8 +8,7 @@
 
 __author__ = 'RaXianch'
 import time
-from fastapi import APIRouter
-router = APIRouter()
+from apps.exhentai import router
 
 @router.get("/")
 async def index():

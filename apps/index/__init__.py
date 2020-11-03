@@ -5,8 +5,8 @@
 # CreatTIME : 20:16 
 # Blog      : https://blog.raxianch.moe/
 # Github    : https://github.com/DeSireFire
-
+from fastapi import APIRouter
+from server import RES_CALLBACK
+router = APIRouter()
 __author__ = 'RaXianch'
 app_name = 'index'
-from . import views
-from server import RES_CALLBACK

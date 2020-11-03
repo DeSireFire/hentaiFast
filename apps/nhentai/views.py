@@ -15,13 +15,10 @@ from typing import Optional
 # 响应数据构建器
 from apps import constructResponse
 from apps.nhentai import app_name
-from fastapi import APIRouter
+from apps.nhentai import router
 from fastapi.responses import RedirectResponse
 from fastapi.responses import FileResponse
 from fastapi.responses import Response
-
-# 声明视图子路由
-router = APIRouter()
 
 
 # 视图函数
