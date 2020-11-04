@@ -99,6 +99,7 @@ async def nh_item(item_id: int):
     tempStr = "{}"
     tempDict = {
         "id": None,
+        "hash": None,
         "origin": app_name,
         "title": None,
         "pages": None,

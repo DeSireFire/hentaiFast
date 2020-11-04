@@ -15,8 +15,10 @@ from requests.adapters import HTTPAdapter
 import requests
 import sys
 import os
+import chardet
 import asyncio
 import nest_asyncio
+import threading
 
 nest_asyncio.apply()
 
@@ -64,6 +66,7 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
     try:
         s.proxies = proxiesList[0]
         r = s.get(url, timeout=timeout, verify=verify)
+        # 获取网页编码格式，并修改为request.text的解码类型
         callBack = r
         # callBack["status"] = True
         # callBack["response"] = r
@@ -74,6 +77,7 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         s.mount('https://', HTTPAdapter(max_retries=reTry))
         s.proxies = proxiesList[1]
         r = s.get(url, timeout=timeout, verify=verify)
+        # 获取网页编码格式，并修改为request.text的解码类型
         # callBack["status"] = True
         # callBack["response"] = r
         callBack = r
@@ -83,6 +87,43 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         print(allE)
     finally:
         return callBack
+
+
+class MyThread(threading.Thread):
+    def __init__(self, func, args):
+        super(MyThread, self).__init__()
+        self.func = func
+        self.args = args
+
+    def run(self):
+        self.result = self.func(*self.args)
+
+    def get_result(self):
+        try:
+            return self.result
+        except Exception:
+            return None
+
+def thread_load_web(urls, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY):
+    print(urls)
+    threads = []
+    resData = {}
+    for u in urls:
+        # 进程列表生成
+        t = MyThread(base_load_web, (u, headers, timeout, reTry, verify))
+        threads.append(t)
+        resData[u] = None
+
+    for thread in threads:
+        thread.start()
+
+    for i, thread in enumerate(threads):
+        thread.join()
+        resData[urls[i]] = thread.get_result()
+        # 进度计算
+        info = '[%s/%s]' % (i + 1, len(urls))
+        print(info)
+    return resData
 
 
 def random_user_agent():

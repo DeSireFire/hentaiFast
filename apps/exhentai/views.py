@@ -46,10 +46,10 @@ async def exh_item(item_id: int, hash_id: str):
     - **param**[item_id]:  int，漫画的id
     - **return**: json,响应的数据咯~
     """
-    from handlers.getWeb import base_load_web
-    tempStr = "{}"
+    from handlers.getWeb import base_load_web, thread_load_web
     tempDict = {
         "id": None,
+        "hash": None,
         "origin": app_name,
         "title": None,
         "pages": None,
@@ -60,29 +60,40 @@ async def exh_item(item_id: int, hash_id: str):
         "raw": None,    # 原始数据
     }
     callbackJson = constructResponse()
-    print(app_name)
     headers = {
         "Cookie": random.choice(EXH_COOKIE)
     }
     req = base_load_web(f"https://exhentai.org/g/{item_id}/{hash_id}/", headers=headers)
 
     if req is not None:
+        import math
         from handlers.dbFormat import reglux
         callbackJson.statusCode = req.status_code
-        # tempStr = "".join(reglux(req.text, r'window._gallery = JSON.parse\("([\s\S]*?)"\);', False)).encode(
-        #     "utf-8").decode('unicode-escape')
-        print(req)
-        # rawData = json.loads(tempStr)
-        # tempDict["raw"] = rawData
-        # tempDict["id"] = rawData["id"]
-        # tempDict["title"] = {
-        #     "full_name": rawData["title"]["english"],
-        #     "translated": rawData["title"]["japanese"],
-        #     "abbre": rawData["title"]["pretty"],
-        # }
-        # tempDict["favorites"] = rawData["num_favorites"]
-        # tempDict["pages"] = rawData["num_pages"]
-        # tempDict["tags"] = rawData["tags"]
-        # tempDict["upload_date"] = rawData["upload_date"]
 
+        # 获取本子图片总数
+        tempDict["pages"] = int("".join(reglux(req.text, 'Length:</td><td class="gdt2">(.*?) pages</td></tr>', False)))
+        # 获取本子首页所有单页地址
+        tempDict["images"] += reglux(req.text, '<div class="gdtl" style="height:320px"><a href="(.*?)">', False)
+
+        # 生成exh本子分页地址列表
+        gPages = []
+        for i in range(1, math.ceil(tempDict["pages"]/20)+1):
+            gPages.append(f"https://exhentai.org/g/{item_id}/{hash_id}/?p={i}")
+
+        #  对本子分页发出请求，获取各个分页中所有单页地址并合并到返回数据中
+        subPages = thread_load_web(gPages, headers=headers)
+        for k, v in subPages.items():
+            tempDict["images"] += reglux(v.text, '<div class="gdtl" style="height:320px"><a href="(.*?)">', False)
+
+        tempDict["id"] = item_id
+        tempDict["hash"] = hash_id
+        tempDict["title"] = {
+            "full_name": "".join(reglux(req.text, "<title>(.*?) - ExHentai.org</title>", False)),
+            "translated": "".join(reglux(req.text, '<h1 id="gj">(.*?)</h1>', False)),
+            "abbre": "",
+        }
+        tempDict["favorites"] = "".join(reglux(req.text, '<td class="gdt2" id="favcount">(.*?) times</td>', False))
+        tempDict["tags"] = []
+        tempDict["upload_date"] = "".join(reglux(req.text, 'Posted:</td><td class="gdt2">(.*?)</td>', False))
+        tempDict["raw"] = [req.text]
     return callbackJson.callBacker(tempDict)
