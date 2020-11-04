@@ -119,6 +119,7 @@ async def nh_item(item_id: int):
         rawData = json.loads(tempStr)
         tempDict["raw"] = rawData
         tempDict["id"] = rawData["id"]
+        tempDict["hash"] = rawData["media_id"]
         tempDict["title"] = {
             "full_name": rawData["title"]["english"],
             "translated": rawData["title"]["japanese"],
@@ -126,10 +127,20 @@ async def nh_item(item_id: int):
         }
         tempDict["favorites"] = rawData["num_favorites"]
         tempDict["pages"] = rawData["num_pages"]
+        tempDict["images"] = [f"/galleries/{tempDict['hash']}/{i}.jpg" for i in range(1, tempDict["pages"]+1)]
         tempDict["tags"] = rawData["tags"]
         tempDict["upload_date"] = rawData["upload_date"]
 
     return callbackJson.callBacker(tempDict)
+
+
+@router.get("/galleries/{mid}/{page}")
+async def nh_galleries(mid: int, page: int):
+    from handlers.getWeb import base_load_web
+    url = f"https://i.nhentai.net/galleries/{mid}/{page}.jpg"
+    r = base_load_web(url)
+    return Response(content=r.content)
+
 
 @router.get("/thumb/{tid}")
 async def nh_thumb(tid: int):
