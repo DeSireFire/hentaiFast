@@ -23,7 +23,7 @@ from fastapi.responses import Response
 
 
 @router.get("/")
-async def nh():
+async def exh():
     from handlers.getWeb import base_load_web
     tempStr = "{}"
     start_time = time.time()

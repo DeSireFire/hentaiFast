@@ -127,7 +127,7 @@ async def nh_item(item_id: int):
         }
         tempDict["favorites"] = rawData["num_favorites"]
         tempDict["pages"] = rawData["num_pages"]
-        tempDict["images"] = [f"/galleries/{tempDict['hash']}/{i}.jpg" for i in range(1, tempDict["pages"]+1)]
+        tempDict["images"] = [f"/ero/nh/galleries/{tempDict['hash']}/{i}" for i in range(1, tempDict["pages"]+1)]
         tempDict["tags"] = rawData["tags"]
         tempDict["upload_date"] = rawData["upload_date"]
 
