@@ -24,7 +24,14 @@ from fastapi.responses import Response
 # 视图函数
 @router.get("/")
 async def nh():
-    return {}
+    context = {
+        "/random": "随机本子，状态码300+",
+        "/search": "关键词搜索，get请求参数。q:str，搜索关键词,多个词使用+号分隔,组合词使用_代替空格,page:int,页码",
+        "/id/{item_id}": "{item_id}:单本信息，int，漫画的id",
+        "/galleries/{hash}/{page}": "{hash}:str，本子hash,page:int,页码",
+        "/thumb/{tid}": "{tid}:int，缩略图id",
+    }
+    return context
 
 
 @router.get("/random")
@@ -60,6 +67,7 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
         "kw": q,
         "page": page,
         "pages": None,
+        "results": None,
         "bookList": [],
     }
     callbackJson = constructResponse()
