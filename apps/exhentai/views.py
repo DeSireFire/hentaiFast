@@ -24,15 +24,12 @@ from fastapi.responses import Response
 
 @router.get("/")
 async def exh():
-    from handlers.getWeb import base_load_web
-    tempStr = "{}"
-    start_time = time.time()
-    req = base_load_web("https://nhentai.net/g/249664/")
-    if req != None:
-        from handlers.dbFormat import reglux
-        tempStr = "".join(reglux(req.text, r'window._gallery = JSON.parse\("([\s\S]*?)"\);', False)).encode("utf-8").decode('unicode-escape')
-    end_time = time.time()
-    return {"costTime": end_time-start_time, "content": json.loads(tempStr)}
+    context = {
+        "/search": "关键词搜索，get请求参数。q:str，搜索关键词,多个词使用+号分隔,组合词使用_代替空格,page:int,页码",
+        "/id/{item_id}": "{item_id}:单本信息，int，漫画的id",
+        "/thumb/{tid}": "{tid}:int，缩略图id",
+    }
+    return context
 
 
 @router.get("/search")

@@ -29,3 +29,16 @@ async def index():
     with open(os.path.join(BASE_DIR, "runServer.py"), 'a+') as f:
         f.write("\n    print(%s)" % time.time())
     return {}
+
+
+@router.get("/demo")
+async def exh():
+    from handlers.getWeb import base_load_web
+    tempStr = "{}"
+    start_time = time.time()
+    req = base_load_web("https://nhentai.net/g/249664/")
+    if req != None:
+        from handlers.dbFormat import reglux
+        tempStr = "".join(reglux(req.text, r'window._gallery = JSON.parse\("([\s\S]*?)"\);', False)).encode("utf-8").decode('unicode-escape')
+    end_time = time.time()
+    return {"costTime": end_time-start_time, "content": json.loads(tempStr)}
