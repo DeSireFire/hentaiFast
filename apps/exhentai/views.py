@@ -125,20 +125,25 @@ async def exh_item(item_id: int, hash_id: str):
         tempDict["pages"] = int("".join(reglux(req.text, 'Length:</td><td class="gdt2">(.*?) pages</td></tr>', False)))
         # 获取本子首页所有单页地址
         imagesTemp = []
-        imagesTemp += reglux(req.text, '<div class="gdtl" style="height:.*?px"><a href="(.*?)">', False)
+        # exh html 不时出现变化，双路正则表达式
+        imagesTemp += reglux(req.text, '<div class="gdtl" style="height:.*?px"><a href="(.*?)">', False) or \
+                      reglux(req.text, 'no-repeat"><a href="(.*?)"><img alt', False)
+        # 计算exh对本子的分页数
+        gPages = math.ceil(tempDict["pages"]/20)
+        # 大于1页才进行多页请求
+        if gPages > 1:
+            # 生成exh本子分页地址列表
+            gUrlPagesUrl = []
+            for i in range(1, math.ceil(tempDict["pages"]/20)+1):
+                gUrlPagesUrl.append(f"https://exhentai.org/g/{item_id}/{hash_id}/?p={i}")
 
-        # 生成exh本子分页地址列表
-        gPages = []
-        for i in range(1, math.ceil(tempDict["pages"]/20)+1):
-            gPages.append(f"https://exhentai.org/g/{item_id}/{hash_id}/?p={i}")
+            #  对本子分页发出请求，获取各个分页中所有单页地址并合并到返回数据中
+            subPages = thread_load_web(gPages, headers=headers)
+            for k, v in subPages.items():
+                temp = reglux(v.text, '<div class="gdtl" style="height:.*?px"><a href="(.*?)">', False)
+                imagesTemp += temp
 
-        #  对本子分页发出请求，获取各个分页中所有单页地址并合并到返回数据中
-        subPages = thread_load_web(gPages, headers=headers)
-        for k, v in subPages.items():
-            temp = reglux(v.text, '<div class="gdtl" style="height:320px"><a href="(.*?)">', False)
-            imagesTemp += temp
         tempDict["images"] = imagesTemp
-
         tempDict["id"] = item_id
         tempDict["hash"] = hash_id
         tempDict["title"] = {
