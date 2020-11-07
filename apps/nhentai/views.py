@@ -93,7 +93,7 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
 
 
 @router.get("/id/{item_id}")
-async def nh_item(item_id: int):
+async def nh_item(item_id: int, raw: Optional[bool] = False):
     """
     **nh_item** :
 
@@ -119,25 +119,33 @@ async def nh_item(item_id: int):
     }
     callbackJson = constructResponse()
     req = base_load_web("https://nhentai.net/g/%s/" % item_id)
-    if req is not None:
-        from handlers.dbFormat import reglux
-        callbackJson.statusCode = req.status_code
-        tempStr = "".join(reglux(req.text, r'window._gallery = JSON.parse\("([\s\S]*?)"\);', False)).encode(
-            "utf-8").decode('unicode-escape')
-        rawData = json.loads(tempStr)
+    # 请求失败返回
+    if req is None:
+        return callbackJson.callBacker(tempDict)
+
+    from handlers.dbFormat import reglux
+    callbackJson.statusCode = req.status_code
+    tempStr = "".join(reglux(req.text, r'window._gallery = JSON.parse\("([\s\S]*?)"\);', False)).encode(
+        "utf-8").decode('unicode-escape')
+    rawData = json.loads(tempStr)
+    tempDict["id"] = rawData["id"]
+    tempDict["hash"] = rawData["media_id"]
+
+    tempDict["title"] = {
+        "full_name": rawData["title"]["english"],
+        "translated": rawData["title"]["japanese"],
+        "abbre": rawData["title"]["pretty"],
+    }
+    tempDict["favorites"] = rawData["num_favorites"]
+    tempDict["pages"] = rawData["num_pages"]
+    tempDict["images"] = [f"/ero/nh/galleries/{tempDict['hash']}/{i}" for i in range(1, tempDict["pages"]+1)]
+    tempDict["tags"] = rawData["tags"]
+    tempDict["upload_date"] = rawData["upload_date"]
+    # 是否提供原生数据
+    if raw:
         tempDict["raw"] = rawData
-        tempDict["id"] = rawData["id"]
-        tempDict["hash"] = rawData["media_id"]
-        tempDict["title"] = {
-            "full_name": rawData["title"]["english"],
-            "translated": rawData["title"]["japanese"],
-            "abbre": rawData["title"]["pretty"],
-        }
-        tempDict["favorites"] = rawData["num_favorites"]
-        tempDict["pages"] = rawData["num_pages"]
-        tempDict["images"] = [f"/ero/nh/galleries/{tempDict['hash']}/{i}" for i in range(1, tempDict["pages"]+1)]
-        tempDict["tags"] = rawData["tags"]
-        tempDict["upload_date"] = rawData["upload_date"]
+    else:
+        del tempDict["raw"]
 
     return callbackJson.callBacker(tempDict)
 

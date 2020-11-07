@@ -84,7 +84,7 @@ async def exh_search(q: Optional[str] = "", page: Optional[int] = 1):
     return callbackJson.callBacker(tempDict)
 
 @router.get("/id/{item_id}/{hash_id}")
-async def exh_item(item_id: int, hash_id: str):
+async def exh_item(item_id: int, hash_id: str, raw: Optional[bool] = False):
     """
     **exh_item** :
 
@@ -102,7 +102,7 @@ async def exh_item(item_id: int, hash_id: str):
         "origin": app_name,
         "title": None,
         "pages": None,
-        "favorites": None,
+        "favorites": 0,
         "upload_date": None,
         "images": [],
         "tags": [],
@@ -116,45 +116,59 @@ async def exh_item(item_id: int, hash_id: str):
     }
     req = base_load_web(f"https://exhentai.org/g/{item_id}/{hash_id}/", headers=headers)
 
-    if req is not None:
-        import math
-        from handlers.dbFormat import reglux
-        callbackJson.statusCode = req.status_code
+    # 请求失败返回
+    if req is None:
+        return callbackJson.callBacker(tempDict)
 
-        # 获取本子图片总数
-        tempDict["pages"] = int("".join(reglux(req.text, 'Length:</td><td class="gdt2">(.*?) pages</td></tr>', False)))
-        # 获取本子首页所有单页地址
-        imagesTemp = []
-        # exh html 不时出现变化，双路正则表达式
-        imagesTemp += reglux(req.text, '<div class="gdtl" style="height:.*?px"><a href="(.*?)">', False) or \
-                      reglux(req.text, 'no-repeat"><a href="(.*?)"><img alt', False)
-        # 计算exh对本子的分页数
-        gPages = math.ceil(tempDict["pages"]/20)
-        # 大于1页才进行多页请求
-        if gPages > 1:
-            # 生成exh本子分页地址列表
-            gUrlPagesUrl = []
-            for i in range(1, math.ceil(tempDict["pages"]/20)+1):
-                gUrlPagesUrl.append(f"https://exhentai.org/g/{item_id}/{hash_id}/?p={i}")
+    import math
+    from handlers.dbFormat import reglux
+    callbackJson.statusCode = req.status_code
 
-            #  对本子分页发出请求，获取各个分页中所有单页地址并合并到返回数据中
-            subPages = thread_load_web(gPages, headers=headers)
-            for k, v in subPages.items():
-                temp = reglux(v.text, '<div class="gdtl" style="height:.*?px"><a href="(.*?)">', False)
-                imagesTemp += temp
+    # 获取本子图片总数
+    tempDict["pages"] = int("".join(reglux(req.text, 'Length:</td><td class="gdt2">(.*?) pages</td></tr>', False)))
+    # 获取本子首页所有单页地址
+    imagesTemp = []
+    # exh html 不时出现变化，双路正则表达式
+    imagesTemp += reglux(req.text, '<div class="gdtl" style="height:.*?px"><a href="(.*?)">', False) or \
+                  reglux(req.text, 'no-repeat"><a href="(.*?)"><img alt', False)
+    # 计算exh对本子的分页数
+    gPages = math.ceil(tempDict["pages"]/20)
+    # 大于1页才进行多页请求
+    if gPages > 1:
+        # 生成exh本子分页地址列表
+        gUrlPagesUrl = []
+        for i in range(1, math.ceil(tempDict["pages"]/20)+1):
+            gUrlPagesUrl.append(f"https://exhentai.org/g/{item_id}/{hash_id}/?p={i}")
 
-        tempDict["images"] = imagesTemp
-        tempDict["id"] = item_id
-        tempDict["hash"] = hash_id
-        tempDict["title"] = {
-            "full_name": "".join(reglux(req.text, "<title>(.*?) - ExHentai.org</title>", False)),
-            "translated": "".join(reglux(req.text, '<h1 id="gj">(.*?)</h1>', False)),
-            "abbre": "",
-        }
-        tempDict["favorites"] = "".join(reglux(req.text, '<td class="gdt2" id="favcount">(.*?) times</td>', False))
-        tempDict["tags"] = []
-        tempDict["upload_date"] = "".join(reglux(req.text, 'Posted:</td><td class="gdt2">(.*?)</td>', False))
+        #  对本子分页发出请求，获取各个分页中所有单页地址并合并到返回数据中
+        subPages = thread_load_web(gPages, headers=headers)
+        for k, v in subPages.items():
+            temp = reglux(v.text, '<div class="gdtl" style="height:.*?px"><a href="(.*?)">', False)
+            imagesTemp += temp
+
+    # 是否提供原生数据
+    if raw:
         tempDict["raw"] = [req.text]
+    else:
+        del tempDict["raw"]
+
+
+    # 数据整理
+    tempDict["images"] = imagesTemp
+    tempDict["id"] = item_id
+    tempDict["hash"] = hash_id
+    tempDict["title"] = {
+        "full_name": "".join(reglux(req.text, "<title>(.*?) - ExHentai.org</title>", False)),
+        "translated": "".join(reglux(req.text, '<h1 id="gj">(.*?)</h1>', False)),
+        "abbre": "",
+    }
+    tempDict["favorites"] = int(
+        "".join(reglux(req.text, 'id="favcount">(\d*?) times</td>', False)) or
+        "".join(reglux(req.text, 'id="favcount">(.*?)</td>', False)).replace("Once", "1") or
+        0
+    )
+    tempDict["tags"] = []
+    tempDict["upload_date"] = "".join(reglux(req.text, 'Posted:</td><td class="gdt2">(.*?)</td>', False))
     return callbackJson.callBacker(tempDict)
 
 
