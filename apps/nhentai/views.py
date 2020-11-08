@@ -84,11 +84,13 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
         for b, n, t in zip(bids, names, thumbs):
             tempItem = {
                 "id": b,
+                "hash": str_extract_num(t),
                 "bname": n,
                 "cover": "/ero/nh/thumb/%s/" % str_extract_num(t),
                 "url": "/ero/nh/id/%s/" % b,
             }
             tempDict["bookList"].append(tempItem)
+        tempDict["results"] = len(tempDict["bookList"])
     return callbackJson.callBacker(tempDict)
 
 

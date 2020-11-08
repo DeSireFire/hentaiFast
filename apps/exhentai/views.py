@@ -69,16 +69,17 @@ async def exh_search(q: Optional[str] = "", page: Optional[int] = 1):
         tempDict["results"] = int(str_extract_num("".join(reglux(req.text, r'Showing (.*?) results', False))))
         # 通过总数计算总页数
         tempDict["pages"] = math.ceil(tempDict["results"]/25)
-        bids = reglux(req.text, r'<a href="https://exhentai.org/g/([\s\S]*?)/">', False)
+        bids = reglux(req.text, r'<a href="https://exhentai.org/g/([\s\S]*?)/([\s\S]*?)/">', False)
         names = reglux(req.text, r'class="glink">([\s\S]*?)</div>', False)
         thumbs = reglux(req.text, r'src="https://exhentai.org/t/.*?/.*?/([\s\S]*?).jpg"', False)
         # todo id&hash是否分离。星级等新字段添加
         for b, n, t in zip(bids, names, thumbs):
             tempItem = {
-                "id": b,
+                "id": b[0],
+                "hash": b[-1],
                 "bname": n,
                 "cover": "/ero/exh/thumb/%s/" % t,
-                "url": "/ero/exh/id/%s/" % b,
+                "url": "/ero/exh/id/%s/%s/" % (b[0], b[1]),
             }
             tempDict["bookList"].append(tempItem)
     return callbackJson.callBacker(tempDict)
@@ -137,13 +138,14 @@ async def exh_item(item_id: int, hash_id: str, raw: Optional[bool] = False):
     if gPages > 1:
         # 生成exh本子分页地址列表
         gUrlPagesUrl = []
-        for i in range(1, math.ceil(tempDict["pages"]/20)+1):
+        for i in range(1, gPages+1):
             gUrlPagesUrl.append(f"https://exhentai.org/g/{item_id}/{hash_id}/?p={i}")
 
         #  对本子分页发出请求，获取各个分页中所有单页地址并合并到返回数据中
-        subPages = thread_load_web(gPages, headers=headers)
+        subPages = thread_load_web(gUrlPagesUrl, headers=headers)
         for k, v in subPages.items():
-            temp = reglux(v.text, '<div class="gdtl" style="height:.*?px"><a href="(.*?)">', False)
+            temp = reglux(v.text, '<div class="gdtl" style="height:.*?px"><a href="(.*?)">', False) or \
+                   reglux(req.text, 'no-repeat"><a href="(.*?)"><img alt', False)
             imagesTemp += temp
 
     # 是否提供原生数据
@@ -154,7 +156,7 @@ async def exh_item(item_id: int, hash_id: str, raw: Optional[bool] = False):
 
 
     # 数据整理
-    tempDict["images"] = imagesTemp
+    tempDict["images"] = list(map(lambda x: f"/ero/exh/galleries/{x.split('/s/')[-1]}/", imagesTemp))
     tempDict["id"] = item_id
     tempDict["hash"] = hash_id
     tempDict["title"] = {
@@ -172,6 +174,24 @@ async def exh_item(item_id: int, hash_id: str, raw: Optional[bool] = False):
     return callbackJson.callBacker(tempDict)
 
 
+@router.get("/galleries/{book_hash}/{picture_id}/")
+async def exh_manga(book_hash: str, picture_id: str,):
+    from handlers.getWeb import base_load_web
+    from handlers.dbFormat import reglux
+    headers = {
+        "Cookie": random.choice(EXH_COOKIE)
+    }
+    url = f"https://exhentai.org/s/{book_hash}/{picture_id}"
+    req = base_load_web(url, headers=headers)
+    # 请求失败返回
+    if req is None:
+        return Response(status_code=404)
+
+    imgUrl = "".join(reglux(req.text, '<img id="img" src="(.*?)"', False))
+    r = base_load_web(imgUrl, headers=headers)
+    return Response(content=r.content)
+
+
 @router.get("/thumb/{tid}")
 async def exh_thumb(tid: str):
     # todo 处理方式还不够完美
@@ -184,3 +204,7 @@ async def exh_thumb(tid: str):
     url = "https://exhentai.org/t/"+tid[0]+tid[1]+"/"+tid[2]+tid[3]+"/"+tid+".jpg"
     r = base_load_web(url, headers=headers)
     return Response(content=r.content)
+
+
+#todo 单页列表分离
+#todo 单本信息接口加上分页总数
