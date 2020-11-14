@@ -176,6 +176,10 @@ async def exh_item(item_id: int, hash_id: str, raw: Optional[bool] = False):
 
 @router.get("/galleries/{book_hash}/{picture_id}/")
 async def exh_galleries(book_hash: str, picture_id: str,):
+    pass
+
+@router.get("/i/{book_hash}/{picture_id}/")
+async def exh_images(book_hash: str, picture_id: str,):
     from handlers.getWeb import base_load_web
     from handlers.dbFormat import reglux
     headers = {

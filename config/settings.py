@@ -72,8 +72,6 @@ CUSTO_CALLBACK_DATA = {
 """
 其他设置
 """
-# exhentai的登陆cookie
-# igneous,id,hash,s,sk的顺序(s和sk可以不填*但是种子模式就没法用了！
-SELF_EXH_COOKIE = [
-
-]
+# exhentai的登陆cookie,可以把你的cookie放到这里
+# igneous,id,hash,s,sk的顺序(s和sk可以不填*但是种子模式就没法用了!)
+SELF_EXH_COOKIE = []

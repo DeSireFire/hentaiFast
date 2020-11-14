@@ -48,12 +48,24 @@ def str_extract_num(tempStr):
 
 
 def str_2_encrypt(tempStr, enc="utf-8"):
+    """
+    字符串简单加密
+    :param tempStr: str,需要加密的字符串
+    :param enc: str,字符串解码方式
+    :return: str,加密后的内容
+    """
     import base64
     encStr = str(base64.b64encode(tempStr.encode(enc)), enc)[::-1]
     return encStr
 
 
 def encrypt_2_str(encStr, enc="utf-8"):
+    """
+    字符串简单解密
+    :param encStr: str,需要加密的字符串
+    :param enc: str,字符串解码方式
+    :return: str,解密后的内容
+    """
     import base64
     decStr = str(base64.b64decode(encStr[::-1].encode(enc)), enc)
     return decStr
