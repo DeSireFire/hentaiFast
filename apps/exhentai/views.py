@@ -175,7 +175,7 @@ async def exh_item(item_id: int, hash_id: str, raw: Optional[bool] = False):
 
 
 @router.get("/galleries/{book_hash}/{picture_id}/")
-async def exh_manga(book_hash: str, picture_id: str,):
+async def exh_galleries(book_hash: str, picture_id: str,):
     from handlers.getWeb import base_load_web
     from handlers.dbFormat import reglux
     headers = {
@@ -207,4 +207,6 @@ async def exh_thumb(tid: str):
 
 
 #todo 单页列表分离
-#todo 单本信息接口加上分页总数
+
+#todo exh ban ip
+# Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring/harvesting software. The ban expires in 48 minutes and 16 seconds

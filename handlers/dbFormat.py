@@ -45,3 +45,16 @@ def str_extract_num(tempStr):
     """
     import re
     return re.sub(r"\D", "", tempStr)
+
+
+def str_2_encrypt(tempStr, enc="utf-8"):
+    import base64
+    encStr = str(base64.b64encode(tempStr.encode(enc)), enc)[::-1]
+    return encStr
+
+
+def encrypt_2_str(encStr, enc="utf-8"):
+    import base64
+    decStr = str(base64.b64decode(encStr[::-1].encode(enc)), enc)
+    return decStr
+

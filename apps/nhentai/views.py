@@ -106,6 +106,7 @@ async def nh_item(item_id: int, raw: Optional[bool] = False):
     - **return**: json,响应的数据咯~
     """
     from handlers.getWeb import base_load_web
+    from handlers.dbFormat import str_2_encrypt
     tempStr = "{}"
     tempDict = {
         "id": None,
@@ -115,7 +116,8 @@ async def nh_item(item_id: int, raw: Optional[bool] = False):
         "pages": None,
         "favorites": None,
         "upload_date": None,
-        "images": [],
+        "cover": None,
+        "galleries": None,
         "tags": [],
         "raw": None,    # 原始数据
     }
@@ -132,7 +134,6 @@ async def nh_item(item_id: int, raw: Optional[bool] = False):
     rawData = json.loads(tempStr)
     tempDict["id"] = rawData["id"]
     tempDict["hash"] = rawData["media_id"]
-
     tempDict["title"] = {
         "full_name": rawData["title"]["english"],
         "translated": rawData["title"]["japanese"],
@@ -140,9 +141,19 @@ async def nh_item(item_id: int, raw: Optional[bool] = False):
     }
     tempDict["favorites"] = rawData["num_favorites"]
     tempDict["pages"] = rawData["num_pages"]
-    tempDict["images"] = [f"/ero/nh/galleries/{tempDict['hash']}/{i}" for i in range(1, tempDict["pages"]+1)]
     tempDict["tags"] = rawData["tags"]
     tempDict["upload_date"] = rawData["upload_date"]
+
+    # 获取本子图片格式后缀
+    bookImgSuffix = "".join(reglux(req.text, r'data-src="https://t.nhentai.net/galleries/\d*/cover.(jpg|png)"', False))
+    # 生成封面地址
+    tempDict["cover"] = "/ero/nh/t/{cid}/cover.{suffix}".format(
+        cid=rawData["media_id"],
+        suffix=bookImgSuffix)
+    # 生成画廊地址
+    tempDict["galleries"] = '/ero/nh/galleries/%s' % str_2_encrypt(
+        f'{rawData["id"]}|{rawData["media_id"]}|{rawData["num_pages"]}|{bookImgSuffix}'
+    )
     # 是否提供原生数据
     if raw:
         tempDict["raw"] = rawData
@@ -152,18 +163,66 @@ async def nh_item(item_id: int, raw: Optional[bool] = False):
     return callbackJson.callBacker(tempDict)
 
 
-@router.get("/galleries/{mid}/{page}")
-async def nh_galleries(mid: int, page: int):
+@router.get("/galleries/{enc}")
+async def nh_galleries(enc: str, raw: Optional[bool] = False):
+    """
+    **nh_item** :
+
+    - **name**: 漫画信息接口
+    - **description**: 用对应id获取对应的本子漫画信息的接口,使用get方式请求
+    - **rely**: 依赖handlers.dbFormat.reglux,handlers.getWeb.base_load_web等方法
+    - **param**[item_id]:  int，漫画的id
+    - **return**: json,响应的数据咯~
+    """
     from handlers.getWeb import base_load_web
-    url = f"https://i.nhentai.net/galleries/{mid}/{page}.jpg"
+    from handlers.dbFormat import encrypt_2_str
+    callbackJson = constructResponse()
+    decStr = encrypt_2_str(enc).split("|")
+    id = decStr[0] or None
+    hash = decStr[1] or None
+    pages = decStr[2] or None
+    tempDict = {
+        "from": None,
+        "pages": None,
+        "thumbs": [],
+        "images": [],
+        "raw": None,
+    }
+    req = base_load_web("https://nhentai.net/g/%s/" % id)
+    # 请求失败返回
+    if req is None:
+        return callbackJson.callBacker(tempDict)
+    from handlers.dbFormat import reglux
+    callbackJson.statusCode = req.status_code
+    tempT = reglux(req.text, r'data-src="https://t.nhentai.net/galleries/\d*/(\d*)t.(jpg|png)"', False)
+
+    # 是否提供原生数据
+    if id and hash and pages:
+        tempDict["from"] = f'/ero/nh/id/{id}'
+        tempDict["pages"] = int(pages)
+        tempDict["thumbs"] = [f"/ero/nh/t/{hash}/{i[0]}t.{i[1]}" for i in tempT]
+        tempDict["images"] = [f"/ero/nh/i/{hash}/{i[0]}.{i[1]}" for i in tempT]
+
+    # 是否提供原生数据
+    if raw:
+        tempDict["raw"] = req.text
+    else:
+        del tempDict["raw"]
+
+    return callbackJson.callBacker(tempDict)
+
+
+@router.get("/i/{mid}/{iname}")
+async def nh_images(mid: int, iname: str):
+    from handlers.getWeb import base_load_web
+    url = f"https://i.nhentai.net/galleries/{mid}/{iname}"
     r = base_load_web(url)
     return Response(content=r.content)
 
 
-@router.get("/thumb/{tid}")
-async def nh_thumb(tid: int):
+@router.get("/t/{tid}/{tname}")
+async def nh_thumb(tid: int, tname: str):
     from handlers.getWeb import base_load_web
-    url = 'https://t.nhentai.net/galleries/%s/thumb.jpg' % tid
+    url = f'https://t.nhentai.net/galleries/{tid}/{tname}'
     r = base_load_web(url)
     return Response(content=r.content)
-
