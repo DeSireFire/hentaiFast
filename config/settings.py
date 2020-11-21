@@ -38,7 +38,7 @@ ONPROXY = False
 # 代理设置
 PROXY_SETTING = {
     # True全局使用代理,False则重试时才使用代理
-    "reTryProxy": False,
+    "reTryProxy": True,
     # 代理接口设置
     "http": "http://127.0.0.1:1080",
     "https": "http://127.0.0.1:1080",

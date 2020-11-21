@@ -86,7 +86,8 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
                 "id": b,
                 "hash": str_extract_num(t),
                 "bname": n,
-                "cover": "/ero/nh/thumb/%s/" % str_extract_num(t),
+                "cover": "/ero/nh/t/{tid}/thumb.{tname}".format(
+                    tid=str_extract_num(t), tname="png" if "png" in t else "jpg"),
                 "url": "/ero/nh/id/%s/" % b,
             }
             tempDict["bookList"].append(tempItem)
@@ -176,7 +177,9 @@ async def nh_galleries(enc: str, raw: Optional[bool] = False):
     """
     from handlers.getWeb import base_load_web
     from handlers.dbFormat import encrypt_2_str
+
     callbackJson = constructResponse()
+
     decStr = encrypt_2_str(enc).split("|")
     id = decStr[0] or None
     hash = decStr[1] or None
@@ -225,4 +228,4 @@ async def nh_thumb(tid: int, tname: str):
     from handlers.getWeb import base_load_web
     url = f'https://t.nhentai.net/galleries/{tid}/{tname}'
     r = base_load_web(url)
-    return Response(content=r.content)
+    return Response(content=r.content or {})
