@@ -12,6 +12,7 @@ import weakref
 import time
 import collections
 from functools import wraps
+from config.settings import LOCAL_CACHE, CACHE_TIME
 
 
 class LocalCache(object):
@@ -49,21 +50,25 @@ class LocalCache(object):
 
 
 # 装饰器
-def func_Cache(expire=0):
+def func_Cache(expire=CACHE_TIME or 0, CacheOn=LOCAL_CACHE or False):
     caches = LocalCache()
 
     def _wrappend(func):
-        @wraps(func)
-        def __wrapped(*args, **kwargs):
-            key = str(func) + str(args) + str(kwargs)
-            result = caches.get(key)
-            if result is LocalCache.notFound:
-                result = func(*args, **kwargs)
-                caches.set(key, {r'result': result, r'expire': expire + caches.nowTime()})
+        if CacheOn:
+            print("开始缓存")
+            @wraps(func)
+            def __wrapped(*args, **kwargs):
+                key = str(func) + str(args) + str(kwargs)
                 result = caches.get(key)
-            return result
+                if result is LocalCache.notFound:
+                    result = func(*args, **kwargs)
+                    caches.set(key, {r'result': result, r'expire': expire + caches.nowTime()})
+                    result = caches.get(key)
+                return result['result']
 
-        return __wrapped
+            return __wrapped
+
+        return func
 
     return _wrappend
 

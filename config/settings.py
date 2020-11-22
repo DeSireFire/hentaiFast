@@ -43,6 +43,7 @@ PROXY_SETTING = {
     "http": "http://127.0.0.1:1080",
     "https": "http://127.0.0.1:1080",
 }
+
 """
 回调设置
 
@@ -69,6 +70,20 @@ BASE_CALLBACK_DATA = {
 CUSTO_CALLBACK_DATA = {
 
 }
+
+"""
+缓存设置
+
+轻量化本地缓存，处理量不大时，使用可以提高性能。
+若使用redis缓存建议关闭本地缓存
+"""
+# 本地缓存开关
+LOCAL_CACHE = True
+# 本地缓存时间
+CACHE_TIME = 300
+
+
+
 """
 其他设置
 """

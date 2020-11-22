@@ -24,14 +24,18 @@ nest_asyncio.apply()
 
 try:
     from server import *
+    from handlers.localCacher import *
+
 
 except ModuleNotFoundError as e:
     # 解决终端直接运行main.py找不到项目自建模块的问题
     sys.path.append(os.path.dirname(sys.path[0]))
 
     from server import *
+    from handlers.localCacher import *
 
 
+@func_Cache(expire=10)
 def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY):
     # 请求初始化
     s = requests.Session()
@@ -103,6 +107,7 @@ class MyThread(threading.Thread):
             return self.result
         except Exception:
             return None
+
 
 def thread_load_web(urls, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY):
     print(urls)
@@ -398,9 +403,10 @@ if __name__ == '__main__':
     # 测试代码
     random_user_agent()
     from apps.exhentai import EXH_COOKIE
+
     tempH = {"cookie": EXH_COOKIE[0]}
     # demo = base_load_web('https://e-hentai.org/g/1764572/5e3c21bb65/')
-    demo = base_load_web('https://exhentai.org/g/1764557/c15bd358a5/',headers=tempH)
+    demo = base_load_web('https://exhentai.org/g/1764557/c15bd358a5/', headers=tempH)
     if demo != None:
         from handlers.dbFormat import reglux
 
