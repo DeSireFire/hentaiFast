@@ -23,6 +23,7 @@ def reglux(rawText, re_pattern, nbsp_del=True):
     import re
     # re_pattern = re_pattern.replace('~[',"\~\[").replace(']~','\]\~')
     pattern = re.compile(re_pattern)
+    temp = []
     if nbsp_del:
         temp = pattern.findall("".join(rawText.split()))
     else:

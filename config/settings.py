@@ -30,7 +30,7 @@ REDOC_URL = None
 # 是否验证SSL证书
 VERIFY = True
 # 超时等待(单位是秒)
-TIMEOUT = 6
+TIMEOUT = 10
 # 重试次数
 RETRY_MAX = 3
 # 是否开启代理（代理总开关）
@@ -78,7 +78,7 @@ CUSTO_CALLBACK_DATA = {
 若使用redis缓存建议关闭本地缓存
 """
 # 本地缓存开关
-LOCAL_CACHE = True
+LOCAL_CACHE = False
 # 本地缓存时间
 CACHE_TIME = 300
 

@@ -36,7 +36,7 @@ except ModuleNotFoundError as e:
 
 
 @func_Cache(expire=10)
-def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY):
+def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY, inspectStr=None):
     # 请求初始化
     s = requests.Session()
     # 首次代理设置和重试时代理设置
@@ -72,6 +72,10 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         r = s.get(url, timeout=timeout, verify=verify)
         # 获取网页编码格式，并修改为request.text的解码类型
         callBack = r
+        # inspectStr 自定义字符串判断请求是否成功
+        if inspectStr and inspectStr in callBack.text:
+            print(callBack.text)
+            raise requests.exceptions.RequestException
         # callBack["status"] = True
         # callBack["response"] = r
     except requests.exceptions.RequestException as e:
@@ -109,18 +113,18 @@ class MyThread(threading.Thread):
             return None
 
 
-def thread_load_web(urls, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY):
-    print(urls)
+def thread_load_web(urls, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY, inspectStr=None):
     threads = []
     resData = {}
     for u in urls:
         # 进程列表生成
-        t = MyThread(base_load_web, (u, headers, timeout, reTry, verify))
+        t = MyThread(base_load_web, (u, headers, timeout, reTry, verify, inspectStr))
         threads.append(t)
         resData[u] = None
 
     for thread in threads:
         thread.start()
+        time.sleep(3)
 
     for i, thread in enumerate(threads):
         thread.join()

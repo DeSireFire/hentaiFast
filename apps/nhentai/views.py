@@ -153,7 +153,7 @@ async def nh_item(item_id: int, raw: Optional[bool] = False):
         suffix=bookImgSuffix)
     # 生成画廊地址
     tempDict["galleries"] = '/ero/nh/galleries/%s' % str_2_encrypt(
-        f'{rawData["id"]}|{rawData["media_id"]}|{rawData["num_pages"]}|{bookImgSuffix}'
+        f'{rawData["id"]}|{rawData["media_id"]}|{rawData["num_pages"]}'
     )
     # 是否提供原生数据
     if raw:
