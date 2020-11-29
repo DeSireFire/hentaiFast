@@ -71,9 +71,12 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
         "results": 0,
         "bookList": [],
     }
+    params = {
+        "page": page
+    }
     callbackJson = constructResponse()
     url = "https://nhentai.net/search/?q=%s" % keyword
-    req = base_load_web(url)
+    req = base_load_web(url, params=params)
     if req != None:
         from handlers.dbFormat import reglux
         from handlers.dbFormat import str_extract_num

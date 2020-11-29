@@ -35,8 +35,8 @@ except ModuleNotFoundError as e:
     from handlers.localCacher import *
 
 
-@func_Cache(expire=10)
-def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY, inspectStr=None):
+# @func_Cache(expire=10)
+def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY, inspectStr=None, **kwargs):
     # 请求初始化
     s = requests.Session()
     # 首次代理设置和重试时代理设置
@@ -69,7 +69,7 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
     # 重试次数设置
     try:
         s.proxies = proxiesList[0]
-        r = s.get(url, timeout=timeout, verify=verify)
+        r = s.get(url, timeout=timeout, verify=verify, **kwargs)
         # 获取网页编码格式，并修改为request.text的解码类型
         callBack = r
         # inspectStr 自定义字符串判断请求是否成功
@@ -83,7 +83,7 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         s.mount('http://', HTTPAdapter(max_retries=reTry))
         s.mount('https://', HTTPAdapter(max_retries=reTry))
         s.proxies = proxiesList[1]
-        r = s.get(url, timeout=timeout, verify=verify)
+        r = s.get(url, timeout=timeout, verify=verify, **kwargs)
         # 获取网页编码格式，并修改为request.text的解码类型
         # callBack["status"] = True
         # callBack["response"] = r

@@ -66,6 +66,7 @@ async def exh_search(q: Optional[str] = "", page: Optional[int] = 1):
         import math
         from handlers.dbFormat import str_extract_num
         callbackJson.statusCode = req.status_code
+
         # 获取搜索结果总数
         tempDict["results"] = int(str_extract_num("".join(reglux(req.text, r'Showing (.*?) results', False))))
         # 通过总数计算总页数
@@ -73,7 +74,7 @@ async def exh_search(q: Optional[str] = "", page: Optional[int] = 1):
         bids = reglux(req.text, r'<a href="https://exhentai.org/g/([\s\S]*?)/([\s\S]*?)/">', False)
         names = reglux(req.text, r'class="glink">([\s\S]*?)</div>', False)
         thumbs = reglux(req.text, r'src="https://exhentai.org/t/.*?/.*?/([\s\S]*?).(jpg|png|jpeg|gif)"', False)
-        # todo id&hash是否分离。星级等新字段添加
+        # todo 星级等新字段添加
         for b, n, t in zip(bids, names, thumbs):
             tempItem = {
                 "id": b[0],
@@ -83,6 +84,7 @@ async def exh_search(q: Optional[str] = "", page: Optional[int] = 1):
                 "url": "/ero/exh/id/%s/%s/" % (b[0], b[1]),
             }
             tempDict["bookList"].append(tempItem)
+
     return callbackJson.callBacker(tempDict)
 
 
