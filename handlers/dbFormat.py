@@ -38,6 +38,11 @@ def str_to_unicode(tempStr, enc="utf-8"):
     return tempStr.encode(enc).decode('unicode-escape')
 
 
+def urlencode(tempStr):
+    from urllib.parse import quote
+    return quote(tempStr, 'utf-8')
+
+
 def str_extract_num(tempStr):
     """
     字符串数字提取函数

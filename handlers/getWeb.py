@@ -74,7 +74,6 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         callBack = r
         # inspectStr 自定义字符串判断请求是否成功
         if inspectStr and inspectStr in callBack.text:
-            print(callBack.text)
             raise requests.exceptions.RequestException
         # callBack["status"] = True
         # callBack["response"] = r
@@ -89,7 +88,6 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         # callBack["status"] = True
         # callBack["response"] = r
         callBack = r
-
     # 全局抓取错误
     except Exception as allE:
         print(allE)

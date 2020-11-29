@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # Author    : RaXianch
 # CreatDATE : 2020/10/25 
 # CreatTIME : 1:45 
@@ -61,8 +60,10 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
     """
     #todo 无关搜索词时返回的数据处理
     from handlers.getWeb import base_load_web
+    from handlers.dbFormat import urlencode
+    keyword = urlencode(q)
     # 关键词切割，空格和空格的url转义字符都替换成+
-    keyword = q.replace(" ", "+").replace("%20", "+")
+    # keyword = text.replace(" ", "+").replace("%20", "+")
     tempDict = {
         "kw": q,
         "page": page,
@@ -71,13 +72,14 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
         "bookList": [],
     }
     callbackJson = constructResponse()
-    req = base_load_web("https://nhentai.net/search/?q=%s" % keyword)
+    url = "https://nhentai.net/search/?q=%s" % keyword
+    req = base_load_web(url)
     if req != None:
         from handlers.dbFormat import reglux
         from handlers.dbFormat import str_extract_num
         callbackJson.statusCode = req.status_code
-        tempDict["pages"] = "".join(
-            reglux(req.text, r'<a href="/search/\?q=.*?\&amp\;page=(\d*?)" class="last">', False))
+        tempDict["pages"] = "".join(reglux(req.text, r'<a href="/search/\?q=.*?\&amp\;page=(\d*?)" class="last">', False))
+        tempDict["pages"] = int(tempDict["pages"]) or 0
         bids = reglux(req.text, r'<ahref="/g/(\d*?)/"class="cover"style="padding', True)
         names = reglux(req.text, r'<div class="caption">(.*?)</div>', False)
         thumbs = reglux(req.text, r'<noscript><img src="([\s\S]*?)"', False)
