@@ -68,7 +68,7 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
         "kw": q,
         "page": page,
         "pages": None,
-        "results": None,
+        "results": 0,
         "bookList": [],
     }
     callbackJson = constructResponse()
@@ -78,8 +78,6 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
         from handlers.dbFormat import reglux
         from handlers.dbFormat import str_extract_num
         callbackJson.statusCode = req.status_code
-        tempDict["pages"] = "".join(reglux(req.text, r'<a href="/search/\?q=.*?\&amp\;page=(\d*?)" class="last">', False))
-        tempDict["pages"] = int(tempDict["pages"]) or 0
         bids = reglux(req.text, r'<ahref="/g/(\d*?)/"class="cover"style="padding', True)
         names = reglux(req.text, r'<div class="caption">(.*?)</div>', False)
         thumbs = reglux(req.text, r'<noscript><img src="([\s\S]*?)"', False)
@@ -93,7 +91,19 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
                 "url": "/ero/nh/id/%s/" % b,
             }
             tempDict["bookList"].append(tempItem)
-        tempDict["results"] = len(tempDict["bookList"])
+
+        # 获取结果的总数
+        results = "".join(
+            reglux(req.text, r'<i class="fa fa-search color-icon"></i> ([\s\S]*?) results</h1>', False)) or "0"
+        tempDict["results"] = int(results.replace(",", ""))
+
+        # 处理结果页数 无结果时返回1
+        tempDict["pages"] = "".join(
+            reglux(req.text, r'<a href="/search/\?q=.*?\&amp\;page=(\d*?)" class="last">', False)) or 1
+        tempDict["pages"] = int(tempDict["pages"])
+        if tempDict["results"] == 0:
+            tempDict["pages"] = 1
+
     return callbackJson.callBacker(tempDict)
 
 

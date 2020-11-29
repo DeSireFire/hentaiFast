@@ -69,7 +69,7 @@ async def exh_search(q: Optional[str] = "", page: Optional[int] = 1):
         # 获取搜索结果总数
         tempDict["results"] = int(str_extract_num("".join(reglux(req.text, r'Showing (.*?) results', False))))
         # 通过总数计算总页数
-        tempDict["pages"] = int(math.ceil(tempDict["results"] / 25))
+        tempDict["pages"] = int(math.ceil(tempDict["results"] / 25)) or 0
         bids = reglux(req.text, r'<a href="https://exhentai.org/g/([\s\S]*?)/([\s\S]*?)/">', False)
         names = reglux(req.text, r'class="glink">([\s\S]*?)</div>', False)
         thumbs = reglux(req.text, r'src="https://exhentai.org/t/.*?/.*?/([\s\S]*?).(jpg|png|jpeg|gif)"', False)
