@@ -232,15 +232,28 @@ async def nh_galleries(enc: str, raw: Optional[bool] = False):
 
 @router.get("/i/{mid}/{iname}")
 async def nh_images(mid: int, iname: str):
-    from handlers.getWeb import base_load_web
-    url = f"https://i.nhentai.net/galleries/{mid}/{iname}"
-    r = base_load_web(url)
-    return Response(content=r.content)
+    url = f'https://ero.raxianch.moe/cdn/sacy/ni/galleries/{mid}/{iname}'
+    return RedirectResponse(url)
 
 
 @router.get("/t/{tid}/{tname}")
 async def nh_thumb(tid: int, tname: str):
-    from handlers.getWeb import base_load_web
-    url = f'https://t.nhentai.net/galleries/{tid}/{tname}'
-    r = base_load_web(url)
-    return Response(content=r.content or {})
+    # url = f'https://t.nhentai.net/galleries/{tid}/{tname}'
+    url = f'https://ero.raxianch.moe/cdn/sacy/nt/galleries/{tid}/{tname}'
+    return RedirectResponse(url)
+
+
+# @router.get("/i/{mid}/{iname}")
+# async def nh_images(mid: int, iname: str):
+#     from handlers.getWeb import base_load_web
+#     url = f"https://i.nhentai.net/galleries/{mid}/{iname}"
+#     r = base_load_web(url)
+#     return Response(content=r.content)
+
+
+# @router.get("/t/{tid}/{tname}")
+# async def nh_thumb(tid: int, tname: str):
+#     from handlers.getWeb import base_load_web
+#     url = f'https://t.nhentai.net/galleries/{tid}/{tname}'
+#     r = base_load_web(url)
+#     return Response(content=r.content or {})
