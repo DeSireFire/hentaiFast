@@ -89,8 +89,8 @@ async def nh_search(q: Optional[str] = "a", page: Optional[int] = 1):
                 "id": b,
                 "hash": str_extract_num(t),
                 "bname": n,
-                "cover": "/ero/nh/t/{tid}/thumb.{tname}".format(
-                    tid=str_extract_num(t), tname="png" if "png" in t else "jpg"),
+                # "cover": "/ero/nh/t/{tid}/thumb.{tname}".format(tid=str_extract_num(t), tname="png" if "png" in t else "jpg"),
+                "cover": "https://ero.raxianch.moe/cdn/sacy/nt/galleries/{tid}/thumb.{tname}".format(tid=str_extract_num(t), tname="png" if "png" in t else "jpg"),
                 "url": "/ero/nh/id/%s/" % b,
             }
             tempDict["bookList"].append(tempItem)
@@ -163,9 +163,8 @@ async def nh_item(item_id: int, raw: Optional[bool] = False):
     # 获取本子图片格式后缀
     bookImgSuffix = "".join(reglux(req.text, r'data-src="https://t.nhentai.net/galleries/\d*/cover.(jpg|png)"', False))
     # 生成封面地址
-    tempDict["cover"] = "/ero/nh/t/{cid}/cover.{suffix}".format(
-        cid=rawData["media_id"],
-        suffix=bookImgSuffix)
+    # tempDict["cover"] = "/ero/nh/t/{cid}/cover.{suffix}".format(cid=rawData["media_id"], suffix=bookImgSuffix)
+    tempDict["cover"] = "https://ero.raxianch.moe/cdn/sacy/nt/galleries/{cid}/cover.{suffix}".format(cid=rawData["media_id"], suffix=bookImgSuffix)
     # 生成画廊地址
     tempDict["galleries"] = '/ero/nh/galleries/%s' % str_2_encrypt(
         f'{rawData["id"]}|{rawData["media_id"]}|{rawData["num_pages"]}'
@@ -220,7 +219,7 @@ async def nh_galleries(enc: str, raw: Optional[bool] = False):
         # tempDict["thumbs"] = [f"/ero/nh/t/{hash}/{i[0]}t.{i[1]}" for i in tempT]
         # tempDict["images"] = [f"/ero/nh/i/{hash}/{i[0]}.{i[1]}" for i in tempT]
         tempDict["thumbs"] = [f"https://ero.raxianch.moe/cdn/sacy/nt/galleries/{hash}/{i[0]}t.{i[1]}" for i in tempT]
-        tempDict["thumbs"] = [f"https://ero.raxianch.moe/cdn/sacy/ni/galleries/{hash}/{i[0]}t.{i[1]}" for i in tempT]
+        tempDict["images"] = [f"https://ero.raxianch.moe/cdn/sacy/ni/galleries/{hash}/{i[0]}.{i[1]}" for i in tempT]
 
     # 是否提供原生数据
     if raw:
