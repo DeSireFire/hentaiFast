@@ -83,6 +83,10 @@ LOCAL_CACHE = False
 CACHE_TIME = 300
 
 
+"""
+日志设置
+"""
+pass
 
 """
 其他设置

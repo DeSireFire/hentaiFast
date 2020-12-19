@@ -256,3 +256,8 @@ async def nh_thumb(tid: int, tname: str):
 #     url = f'https://t.nhentai.net/galleries/{tid}/{tname}'
 #     r = base_load_web(url)
 #     return Response(content=r.content or {})
+
+
+# todo gif webp判断
+# todo 动态传图片传递cdn参数
+# todo 搜索引擎隐藏

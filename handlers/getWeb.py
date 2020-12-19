@@ -11,14 +11,12 @@ __author__ = 'RaXianch'
 """
 网络请求器
 """
+from handlers import *
 from requests.adapters import HTTPAdapter
 import requests
-import sys
-import os
 import chardet
 import asyncio
 import nest_asyncio
-import threading
 
 nest_asyncio.apply()
 
@@ -35,7 +33,7 @@ except ModuleNotFoundError as e:
     from handlers.localCacher import *
 
 
-# @func_Cache(expire=10)
+@func_Cache(expire=10)
 def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VERIFY, inspectStr=None, **kwargs):
     # 请求初始化
     s = requests.Session()
