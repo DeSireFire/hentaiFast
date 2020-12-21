@@ -26,7 +26,6 @@ def run_uvicorn(host=HOST, port=int(PORT)):
     uvicorn.run(
         app="server.main:app",
         host=host, port=port,
-        # reload=True, logger=True)
         reload=True)
 
 

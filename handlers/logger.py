@@ -11,6 +11,7 @@ __author__ = 'RaXianch'
 from handlers import *
 import logging
 from logging.handlers import TimedRotatingFileHandler
+
 '''
 日志logger类
 '''
@@ -20,7 +21,8 @@ from logging.handlers import TimedRotatingFileHandler
 cur_path = BASE_DIR
 log_path = os.path.join(cur_path, 'logs')
 # 如果不存在这个logs文件夹，就自动创建一个
-if not os.path.exists(log_path): os.mkdir(log_path)
+if not os.path.exists(log_path):
+    os.mkdir(log_path)
 
 
 class Log(object):
@@ -91,8 +93,7 @@ class Log(object):
         self.__console('error', message)
 
 
-
+logger = Log()
 
 if __name__ == '__main__':
     pass
-    logger = Log()

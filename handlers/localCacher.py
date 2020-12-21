@@ -55,7 +55,6 @@ def func_Cache(expire=CACHE_TIME or 0, CacheOn=LOCAL_CACHE or False):
 
     def _wrappend(func):
         if CacheOn:
-            print("开始缓存")
             @wraps(func)
             def __wrapped(*args, **kwargs):
                 key = str(func) + str(args) + str(kwargs)

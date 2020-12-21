@@ -17,7 +17,7 @@ import requests
 import chardet
 import asyncio
 import nest_asyncio
-
+from handlers.logger import logger
 nest_asyncio.apply()
 
 try:
@@ -76,7 +76,7 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         # callBack["status"] = True
         # callBack["response"] = r
     except requests.exceptions.RequestException as e:
-        print("触发超时重试 %s" % e)
+        logger.warning(f"{url}触发超时重试 %s" % e)
         # 超时重试
         s.mount('http://', HTTPAdapter(max_retries=reTry))
         s.mount('https://', HTTPAdapter(max_retries=reTry))
@@ -88,7 +88,7 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         callBack = r
     # 全局抓取错误
     except Exception as allE:
-        print(allE)
+        logger.error(f"{url}触发超时重试 %s" % allE)
     finally:
         return callBack
 
@@ -125,9 +125,9 @@ def thread_load_web(urls, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify
     for i, thread in enumerate(threads):
         thread.join()
         resData[urls[i]] = thread.get_result()
-        # 进度计算
-        info = '[%s/%s]' % (i + 1, len(urls))
-        print(info)
+        # # 进度计算
+        # info = '[%s/%s]' % (i + 1, len(urls))
+        # logger.info(info)
     return resData
 
 

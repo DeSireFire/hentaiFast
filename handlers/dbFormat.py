@@ -7,7 +7,7 @@
 # Github    : https://github.com/DeSireFire
 
 __author__ = 'RaXianch'
-
+from handlers import re
 """
 数据 格式化&清洗
 """
@@ -62,6 +62,8 @@ def str_2_encrypt(tempStr, enc="utf-8"):
     """
     import base64
     encStr = str(base64.b64encode(tempStr.encode(enc)), enc)[::-1]
+    strCount = encStr.count("=")
+    encStr = encStr.replace("="*strCount, f"nya{strCount}")
     return encStr
 
 
@@ -73,6 +75,11 @@ def encrypt_2_str(encStr, enc="utf-8"):
     :return: str,解密后的内容
     """
     import base64
+    nyaCut = int("".join(re.findall(r"nya(\d*)", encStr)) or 0)
+    encStr = encStr.replace(f"nya{nyaCut}", "="*nyaCut)
     decStr = str(base64.b64decode(encStr[::-1].encode(enc)), enc)
     return decStr
 
+
+if __name__ == '__main__':
+    print(encrypt_2_str("yQDf4UDOzETN8dDN4gzN"))

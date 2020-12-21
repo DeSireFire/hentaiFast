@@ -10,7 +10,7 @@ __author__ = 'RaXianch'
 
 import time
 from server import RES_CALLBACK
-
+from handlers.logger import logger
 
 class constructResponse(object):
     """
@@ -36,6 +36,7 @@ class constructResponse(object):
             self.resData["message"] = "OK!"
         else:
             self.resData["message"] = "数据拉取时发生错误！"
+            logger.error(f"[数据拉取时发生错误] url: {self.resData.url} , code: {self.statusCode}")
 
         if data:
             self.endTime = time.time()
