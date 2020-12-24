@@ -10,6 +10,7 @@ __author__ = 'RaXianch'
 
 from handlers import *
 import logging
+import ctypes
 from logging.handlers import TimedRotatingFileHandler
 
 '''
@@ -24,15 +25,30 @@ log_path = os.path.join(cur_path, 'logs')
 if not os.path.exists(log_path):
     os.mkdir(log_path)
 
+# Logger
+FOREGROUND_WHITE = 0x0007
+FOREGROUND_BLUE = 0x01  # text color contains blue.
+FOREGROUND_GREEN = 0x02  # text color contains green.
+FOREGROUND_RED = 0x04  # text color contains red.
+FOREGROUND_MAGENTA = 0x0005  # text color contains Magenta.
+FOREGROUND_YELLOW = FOREGROUND_RED | FOREGROUND_GREEN
+
+STD_OUTPUT_HANDLE = -11
+std_out_handle = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
+
+
+def set_color(color, handle=std_out_handle):
+    bool = ctypes.windll.kernel32.SetConsoleTextAttribute(handle, color)
+    return bool
+
 
 class Log(object):
     def __init__(self):
         # 文件的命名
         self.logname = os.path.join(log_path, '%s.log' % time.strftime('%Y_%m_%d'))
-        logging.basicConfig()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
-        self.logger.propagate = False
+        # self.logger.propagate = False
         # 日志输出格式
         # self.formatter = logging.Formatter('[%(asctime)s] - %(filename)s] - %(levelname)s: %(message)s')
         self.formatter = logging.Formatter(
@@ -47,22 +63,26 @@ class Log(object):
         # interval 滚动周期，
         # when="MIDNIGHT", interval=1 表示每天0点为更新点，每天生成一个文件
         # backupCount  表示日志保存个数
-        fh = TimedRotatingFileHandler(
-            filename=self.logname, when="MIDNIGHT", interval=1, backupCount=30
-        )
-        # filename="mylog" suffix设置，会生成文件名为mylog.2020-02-25.log
-        fh.suffix = "%Y-%m-%d.log"
-        # extMatch是编译好正则表达式，用于匹配日志文件名后缀
-        # 需要注意的是suffix和extMatch一定要匹配的上，如果不匹配，过期日志不会被删除。
-        fh.extMatch = re.compile(r"^\d{4}-\d{2}-\d{2}.log$")
-        # 定义日志输出格式
-        fh.setLevel(logging.INFO)
-        fh.setFormatter(self.formatter)
-        self.logger.addHandler(fh)
+        if LOG_ON:
+            fh = TimedRotatingFileHandler(
+                filename=self.logname, when="MIDNIGHT", interval=1, backupCount=30
+            )
+            # filename="mylog" suffix设置，会生成文件名为mylog.2020-02-25.log
+            fh.suffix = "%Y-%m-%d.log"
+            # extMatch是编译好正则表达式，用于匹配日志文件名后缀
+            # 需要注意的是suffix和extMatch一定要匹配的上，如果不匹配，过期日志不会被删除。
+            fh.extMatch = re.compile(r"^\d{4}-\d{2}-\d{2}.log$")
+            # 定义日志输出格式
+            fh.setLevel(logging.INFO)
+            fh.setFormatter(self.formatter)
+            self.logger.addHandler(fh)
+            self.logger.removeHandler(fh)
+            # 关闭打开的文件
+            fh.close()
 
         # 创建一个StreamHandler,用于输出到控制台
         ch = logging.StreamHandler()
-        ch.setLevel(logging.ERROR)
+        ch.setLevel(logging.INFO)
         ch.setFormatter(self.formatter)
         self.logger.addHandler(ch)
 
@@ -74,11 +94,11 @@ class Log(object):
             self.logger.warning(message)
         elif level == 'error':
             self.logger.error(message)
-        # 这两行代码是为了避免日志输出重复问题
-        self.logger.removeHandler(ch)
-        self.logger.removeHandler(fh)
-        # 关闭打开的文件
-        fh.close()
+        elif level == 'critical':
+            self.logger.error(message)
+
+        # 这行代码是为了避免日志输出重复问题
+        # self.logger.removeHandler(ch)
 
     def debug(self, message):
         self.__console('debug', message)
@@ -86,11 +106,20 @@ class Log(object):
     def info(self, message):
         self.__console('info', message)
 
-    def warning(self, message):
+    def warning(self, message, color=FOREGROUND_YELLOW):
+        set_color(color)
         self.__console('warning', message)
+        set_color(FOREGROUND_WHITE)
 
-    def error(self, message):
+    def error(self, message, color=FOREGROUND_RED):
+        set_color(color)
         self.__console('error', message)
+        set_color(FOREGROUND_WHITE)
+
+    def critical(self, message, color=FOREGROUND_MAGENTA):
+        set_color(color)
+        self.__console('critical', message)
+        set_color(FOREGROUND_WHITE)
 
 
 logger = Log()

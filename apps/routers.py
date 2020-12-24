@@ -17,9 +17,11 @@ routesPath = {
     "/ero/nh": nhentai.router,
     "/ero/exh": exhentai.router,
 }
-api_router = APIRouter()
+temp_router = APIRouter()
 for u, r in routesPath.items():
-    api_router.include_router(r, prefix=u)
+    temp_router.include_router(r, prefix=u)
+
+api_router = temp_router
 
 
 

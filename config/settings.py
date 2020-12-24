@@ -86,7 +86,8 @@ CACHE_TIME = 300
 """
 日志设置
 """
-pass
+# 是否开启日志
+LOG_ON = True
 
 """
 其他设置

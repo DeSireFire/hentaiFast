@@ -25,6 +25,8 @@ class constructResponse(object):
         self.endTime = None
         self.resData = RES_CALLBACK.copy()
         self.statusCode = 404
+        self.message = None
+        self.url = None
 
     def callBacker(self, data=None):
         if data is None:
@@ -33,16 +35,18 @@ class constructResponse(object):
         self.resData["status_code"] = self.statusCode
         if 200 <= self.statusCode < 300:
             self.resData["status_bool"] = True
-            self.resData["message"] = "OK!"
+            self.message = "OK!"
+
         else:
-            self.resData["message"] = "数据拉取时发生错误！"
-            logger.error(f"[数据拉取时发生错误] url: {self.resData.url} , code: {self.statusCode}")
+            self.message = "数据拉取时发生错误！"
+            logger.error(f"[数据拉取时发生错误] url:{self.url}")
 
         if data:
             self.endTime = time.time()
             self.resData["cost_time"] = "%s 秒" % round(self.endTime - self.startTime, 2)
             self.resData["data"] = data
 
+        self.resData["message"] = self.message
         self.resData["ts"] = self.endTime
         self.resData["date"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         return self.resData

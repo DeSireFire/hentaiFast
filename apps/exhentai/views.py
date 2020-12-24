@@ -8,6 +8,7 @@
 
 __author__ = 'RaXianch'
 
+import sys
 import json
 import time
 import random
@@ -15,6 +16,7 @@ from typing import Optional
 
 # 响应数据构建器
 from apps import constructResponse
+from apps import logger
 from apps.exhentai import app_name
 from apps.exhentai import EXH_COOKIE
 from apps.exhentai import router
@@ -60,12 +62,19 @@ async def exh_search(q: Optional[str] = "", page: Optional[int] = 1):
     headers = {
         "Cookie": random.choice(EXH_COOKIE)
     }
-    req = base_load_web(f"https://exhentai.org/?page={page - 1}&f_search={keyword}", headers=headers)
+    param = {
+        "page": page - 1 if page - 1 >= 0 else 0,
+        "f_search": keyword,
+    }
+    # req = base_load_web(f"https://exhentai.org/?page={page - 1}&f_search={keyword}", headers=headers)
+    req = base_load_web(f"https://exhentai.org/", params=param, headers=headers)
+    # print(req.text)
     if req != None:
         from handlers.dbFormat import reglux
         import math
         from handlers.dbFormat import str_extract_num
         callbackJson.statusCode = req.status_code
+        callbackJson.url = req.url
 
         # 获取搜索结果总数
         tempDict["results"] = int(str_extract_num("".join(reglux(req.text, r'Showing (.*?) results', False))))
@@ -76,6 +85,7 @@ async def exh_search(q: Optional[str] = "", page: Optional[int] = 1):
         thumbs = reglux(req.text, r'src="https://exhentai.org/t/.*?/.*?/([\s\S]*?).(jpg|png|jpeg|gif)"', False)
         # todo 星级等新字段添加
         for b, n, t in zip(bids, names, thumbs):
+            print(b, n, t)
             tempItem = {
                 "id": b[0],
                 "hash": b[-1],
@@ -84,6 +94,9 @@ async def exh_search(q: Optional[str] = "", page: Optional[int] = 1):
                 "url": "/ero/exh/id/%s/%s/" % (b[0], b[1]),
             }
             tempDict["bookList"].append(tempItem)
+        if not tempDict["bookList"]:
+            print(tempDict["bookList"])
+            logger.warning(f"{app_name} {sys._getframe().f_code.co_name}")
 
     return callbackJson.callBacker(tempDict)
 
@@ -129,6 +142,7 @@ async def exh_item(item_id: int, hash_id: str, raw: Optional[bool] = False):
 
     from handlers.dbFormat import reglux
     callbackJson.statusCode = req.status_code
+    callbackJson.url = req.url
 
     # 获取本子图片总数
     tempDict["pages"] = int("".join(reglux(req.text, 'Length:</td><td class="gdt2">(.*?) pages</td></tr>', False)))
@@ -207,6 +221,7 @@ async def exh_galleries(enc: str, raw: Optional[bool] = False):
     import math
     from handlers.dbFormat import reglux
     callbackJson.statusCode = req.status_code
+    callbackJson.url = req.url
 
     # 获取本子首页所有单页地址
     # exh html 不时出现变化，双路正则表达式

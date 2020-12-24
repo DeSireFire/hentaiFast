@@ -9,7 +9,7 @@
 __author__ = 'RaXianch'
 import time
 import json
-from apps.exhentai import router
+from apps.index import router
 
 @router.get("/")
 async def index():
@@ -26,7 +26,7 @@ async def index():
 
 
 @router.get("/reload")
-async def index():
+async def iReload():
     from config.settings import BASE_DIR
     import os
     with open(os.path.join(BASE_DIR, "runServer.py"), 'a+') as f:
