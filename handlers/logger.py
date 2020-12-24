@@ -10,7 +10,6 @@ __author__ = 'RaXianch'
 
 from handlers import *
 import logging
-import ctypes
 from logging.handlers import TimedRotatingFileHandler
 
 '''
@@ -24,22 +23,6 @@ log_path = os.path.join(cur_path, 'logs')
 # 如果不存在这个logs文件夹，就自动创建一个
 if not os.path.exists(log_path):
     os.mkdir(log_path)
-
-# Logger
-FOREGROUND_WHITE = 0x0007
-FOREGROUND_BLUE = 0x01  # text color contains blue.
-FOREGROUND_GREEN = 0x02  # text color contains green.
-FOREGROUND_RED = 0x04  # text color contains red.
-FOREGROUND_MAGENTA = 0x0005  # text color contains Magenta.
-FOREGROUND_YELLOW = FOREGROUND_RED | FOREGROUND_GREEN
-
-STD_OUTPUT_HANDLE = -11
-std_out_handle = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
-
-
-def set_color(color, handle=std_out_handle):
-    bool = ctypes.windll.kernel32.SetConsoleTextAttribute(handle, color)
-    return bool
 
 
 class Log(object):
@@ -106,20 +89,14 @@ class Log(object):
     def info(self, message):
         self.__console('info', message)
 
-    def warning(self, message, color=FOREGROUND_YELLOW):
-        set_color(color)
+    def warning(self, message):
         self.__console('warning', message)
-        set_color(FOREGROUND_WHITE)
 
-    def error(self, message, color=FOREGROUND_RED):
-        set_color(color)
+    def error(self, message):
         self.__console('error', message)
-        set_color(FOREGROUND_WHITE)
 
-    def critical(self, message, color=FOREGROUND_MAGENTA):
-        set_color(color)
+    def critical(self, message):
         self.__console('critical', message)
-        set_color(FOREGROUND_WHITE)
 
 
 logger = Log()
