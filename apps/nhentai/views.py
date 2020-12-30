@@ -12,13 +12,13 @@ import random
 from typing import Optional
 
 # 响应数据构建器
+from apps import logger
 from apps import constructResponse
 from apps.nhentai import app_name
 from apps.nhentai import router
 from fastapi.responses import RedirectResponse
 from fastapi.responses import FileResponse
 from fastapi.responses import Response
-
 
 # 视图函数
 @router.get("/")

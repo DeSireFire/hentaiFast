@@ -19,7 +19,6 @@ import asyncio
 import nest_asyncio
 from handlers.logger import logger
 nest_asyncio.apply()
-
 try:
     from server import *
     from handlers.localCacher import *

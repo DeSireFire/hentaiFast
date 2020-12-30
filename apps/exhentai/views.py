@@ -24,7 +24,6 @@ from fastapi.responses import RedirectResponse
 from fastapi.responses import FileResponse
 from fastapi.responses import Response
 
-
 @router.get("/")
 async def exh():
     context = {
@@ -75,27 +74,29 @@ async def exh_search(q: Optional[str] = "", page: Optional[int] = 1):
         from handlers.dbFormat import str_extract_num
         callbackJson.statusCode = req.status_code
         callbackJson.url = req.url
+        # print(req.url)
+        # print(req.text)
 
         # 获取搜索结果总数
-        tempDict["results"] = int(str_extract_num("".join(reglux(req.text, r'Showing (.*?) results', False))))
+        tempDict["results"] = int(str_extract_num("".join(reglux(req.text, r'Showing (.*?) results', False)))) or 0
         # 通过总数计算总页数
         tempDict["pages"] = int(math.ceil(tempDict["results"] / 25)) or 0
         bids = reglux(req.text, r'<a href="https://exhentai.org/g/([\s\S]*?)/([\s\S]*?)/">', False)
-        names = reglux(req.text, r'class="glink">([\s\S]*?)</div>', False)
+        names = reglux(req.text, r'<div class=".*?glink">([\s\S]*?)</div>', False)
         thumbs = reglux(req.text, r'src="https://exhentai.org/t/.*?/.*?/([\s\S]*?).(jpg|png|jpeg|gif)"', False)
         # todo 星级等新字段添加
         for b, n, t in zip(bids, names, thumbs):
-            print(b, n, t)
             tempItem = {
                 "id": b[0],
                 "hash": b[-1],
                 "bname": n,
+                # "cover": "/ero/exh/t/{tname}.{bookImgSuffix}".format(tname=t[0], bookImgSuffix=t[1]),
                 "cover": "/ero/exh/t/{tname}.{bookImgSuffix}".format(tname=t[0], bookImgSuffix=t[1]),
                 "url": "/ero/exh/id/%s/%s/" % (b[0], b[1]),
             }
             tempDict["bookList"].append(tempItem)
         if not tempDict["bookList"]:
-            print(tempDict["bookList"])
+            # print(tempDict["bookList"])
             logger.warning(f"{app_name} {sys._getframe().f_code.co_name}")
 
     return callbackJson.callBacker(tempDict)
@@ -145,7 +146,13 @@ async def exh_item(item_id: int, hash_id: str, raw: Optional[bool] = False):
     callbackJson.url = req.url
 
     # 获取本子图片总数
-    tempDict["pages"] = int("".join(reglux(req.text, 'Length:</td><td class="gdt2">(.*?) pages</td></tr>', False)))
+    pages = "".join(reglux(req.text, 'Length:</td><td class="gdt2">(.*?) pages</td></tr>', False))
+    if pages:
+        tempDict["pages"] = int(pages)
+    else:
+        tempDict["pages"] = 0
+        print(req.text)
+        logger.warning(f"[获取本子图片总数失败！] {app_name} {sys._getframe().f_code.co_name} {req.url}")
 
     # 获取本子图片格式后缀
     bookImgSuffix = "".join(reglux(
@@ -238,19 +245,21 @@ async def exh_galleries(enc: str, raw: Optional[bool] = False):
     if gPages > 1:
         # 生成exh本子分页地址列表
         gUrlPagesUrl = []
+        print(gPages)
         for i in range(1, gPages):
             gUrlPagesUrl.append(f"https://exhentai.org/g/{id}/{hash}/?p={i}")
+            print(f"https://exhentai.org/g/{id}/{hash}/?p={i}")
 
         #  对本子分页发出请求，获取各个分页中所有单页地址并合并到返回数据中
         subPages = thread_load_web(gUrlPagesUrl, headers=headers, inspectStr="IP address has been temporarily banned")
-        print(subPages)
+        # print(subPages)
         for k, v in subPages.items():
             if v is None:
                 continue
             itemp = reglux(v.text, '<div class="gdtl" style="height:.*?px"><a href="(.*?)">', False) or \
                    reglux(v.text, 'no-repeat"><a href="(.*?)"><img alt', False) or []
             tTemp = reglux(v.text, r'src="https://exhentai.org/t/[\s\S]{2}/[\s\S]{2}/([\s\S]*?)"', False) or []
-            print(f"{v.url}|{len(list(set(tTemp)))}|{len(list(set(tTemp)))}")
+            # print(f"{v.url}|{len(list(set(tTemp)))}|{len(list(set(tTemp)))}")
             if len(tTemp) == 0:
                 print(v.text)
             thumbTemp += tTemp

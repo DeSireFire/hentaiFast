@@ -82,12 +82,17 @@ LOCAL_CACHE = False
 # 本地缓存时间
 CACHE_TIME = 300
 
-
 """
 日志设置
 """
 # 是否开启日志
-LOG_ON = True
+LOG_ON = False
+
+"""
+图片CDN设置
+"""
+# 是否开启日志2
+LOG_ON = False
 
 """
 其他设置
