@@ -147,11 +147,12 @@ async def exh_item(item_id: int, hash_id: str, raw: Optional[bool] = False):
 
     # 获取本子图片总数
     pages = "".join(reglux(req.text, 'Length:</td><td class="gdt2">(.*?) pages</td></tr>', False))
-    if pages:
+    if pages and req.text:
         tempDict["pages"] = int(pages)
     else:
         tempDict["pages"] = 0
-        print(req.text)
+        print(req.status_code)
+        print([req.text])
         logger.warning(f"[获取本子图片总数失败！] {app_name} {sys._getframe().f_code.co_name} {req.url}")
 
     # 获取本子图片格式后缀

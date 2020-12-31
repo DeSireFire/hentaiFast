@@ -70,7 +70,7 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         # 获取网页编码格式，并修改为request.text的解码类型
         callBack = r
         # inspectStr 自定义字符串判断请求是否成功
-        if inspectStr and inspectStr in callBack.text:
+        if inspectStr and inspectStr in callBack.text or len(callBack.text) < 30:
             raise requests.exceptions.RequestException
         # callBack["status"] = True
         # callBack["response"] = r
@@ -85,6 +85,8 @@ def base_load_web(url, headers=None, timeout=TIMEOUT, reTry=RETRY_MAX, verify=VE
         # callBack["status"] = True
         # callBack["response"] = r
         callBack = r
+        if inspectStr and inspectStr in callBack.text or len(callBack.text) < 30:
+            raise requests.exceptions.RequestException
     # 全局抓取错误
     except Exception as allE:
         logger.error(f"{url}触发超时重试 %s" % allE)

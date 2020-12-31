@@ -34,7 +34,7 @@ TIMEOUT = 10
 # 重试次数
 RETRY_MAX = 3
 # 是否开启代理（代理总开关）
-ONPROXY = False
+ONPROXY = False,
 # 代理设置
 PROXY_SETTING = {
     # True全局使用代理,False则重试时才使用代理

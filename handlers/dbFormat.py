@@ -62,8 +62,9 @@ def str_2_encrypt(tempStr, enc="utf-8"):
     """
     import base64
     encStr = str(base64.b64encode(tempStr.encode(enc)), enc)[::-1]
-    strCount = encStr.count("=")
-    encStr = encStr.replace("="*strCount, f"nya{strCount}")
+    # print(encStr)
+    # strCount = encStr.count("=")
+    # encStr = encStr.replace("="*strCount, f"nya{strCount}")
     return encStr
 
 
@@ -75,8 +76,9 @@ def encrypt_2_str(encStr, enc="utf-8"):
     :return: str,解密后的内容
     """
     import base64
-    nyaCut = int("".join(re.findall(r"nya(\d*)", encStr)) or 0)
-    encStr = encStr.replace(f"nya{nyaCut}", "="*nyaCut)
+    # nyaCut = int("".join(re.findall(r"nya(\d*)", encStr)) or 0)
+    # if nyaCut:
+    #     encStr = encStr.replace(f"nya{nyaCut}", "="*nyaCut)
     decStr = str(base64.b64decode(encStr[::-1].encode(enc)), enc)
     return decStr
 

@@ -218,8 +218,10 @@ async def nh_galleries(enc: str, raw: Optional[bool] = False):
         tempDict["pages"] = int(pages)
         # tempDict["thumbs"] = [f"/ero/nh/t/{hash}/{i[0]}t.{i[1]}" for i in tempT]
         # tempDict["images"] = [f"/ero/nh/i/{hash}/{i[0]}.{i[1]}" for i in tempT]
-        tempDict["thumbs"] = [f"https://ero.raxianch.moe/cdn/sacy/nt/galleries/{hash}/{i[0]}t.{i[1]}" for i in tempT]
-        tempDict["images"] = [f"https://ero.raxianch.moe/cdn/sacy/ni/galleries/{hash}/{i[0]}.{i[1]}" for i in tempT]
+        # tempDict["thumbs"] = [f"https://ero.raxianch.moe/cdn/sacy/nt/galleries/{hash}/{i[0]}t.{i[1]}" for i in tempT]
+        # tempDict["images"] = [f"https://ero.raxianch.moe/cdn/sacy/ni/galleries/{hash}/{i[0]}.{i[1]}" for i in tempT]
+        tempDict["thumbs"] = [f"https://cdn.statically.io/img/t.nhentai.net/f=auto,w=720,q=80/galleries/{hash}/{i[0]}t.{i[1]}" for i in tempT]
+        tempDict["images"] = [f" https://cdn.statically.io/img/i.nhentai.net/f=auto,w=720,q=80/galleries/{hash}/{i[0]}.{i[1]}" for i in tempT]
 
     # 是否提供原生数据
     if raw:
