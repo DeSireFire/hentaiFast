@@ -7,7 +7,7 @@
 # Github    : https://github.com/DeSireFire
 
 __author__ = 'RaXianch'
-from handlers import re
+# from handlers import re
 """
 数据 格式化&清洗
 """
